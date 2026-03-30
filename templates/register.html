@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Inscription</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label>Nom d'utilisateur</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Mot de passe</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" name="is_owner" class="form-check-input" id="is_owner">
+                <label class="form-check-label" for="is_owner">Je suis propriétaire (je veux publier des annonces)</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Créer mon compte</button>
+        </form>
+        <p class="mt-3">Déjà inscrit ? <a href="{{ url_for('login') }}">Se connecter</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">➕ Publier une nouvelle annonce</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Titre de l'annonce</label>
+                <input type="text" name="title" class="form-control" required placeholder="Ex: Studio moderne à Sacré-Cœur">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Type de bien</label>
+                <select name="property_type" class="form-select" required>
+                    <option value="studio">Studio</option>
+                    <option value="appartement">Appartement</option>
+                    <option value="chambre">Chambre</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Type de transaction</label>
+                <select name="transaction_type" class="form-select" required>
+                    <option value="louer">Louer</option>
+                    <option value="acheter">Acheter</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Quartier</label>
+                <input type="text" name="neighborhood" class="form-control" required placeholder="Ex: Plateau, Sacré-Cœur, Ouakam...">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Prix (en FCFA)</label>
+                <input type="number" name="price" class="form-control" required placeholder="150000">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="6" required placeholder="Décrivez le bien (surface, nombre de pièces, commodités...)"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Photo du bien (optionnel)</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+                <small class="text-muted">Formats acceptés : JPG, PNG, GIF (max 16 Mo)</small>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success btn-lg mt-3">Publier l'annonce</button>
+</form>
+
+<p class="text-muted mt-4">Note : La carte sera ajoutée plus tard.</p>
+{% endblock %}

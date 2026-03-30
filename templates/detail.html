@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <img src="{{ annonce.image_url }}" class="img-fluid rounded mb-4" style="max-height:500px; width:100%; object-fit:cover;">
+        <h2>{{ annonce.title }}</h2>
+        <h4 class="text-success">{{ annonce.price }} FCFA</h4>
+        <p><strong>{{ annonce.property_type.capitalize() }} • {{ annonce.transaction_type.capitalize() }}</strong></p>
+        <p><strong>Quartier :</strong> {{ annonce.neighborhood }}</p>
+        <p>{{ annonce.description }}</p>
+    </div>
+    <div class="col-md-4">
+        <div id="map" style="height:400px;"></div>
+        <a href="{{ url_for('listings') }}" class="btn btn-secondary mt-3">Retour aux annonces</a>
+    </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_key }}"></script>
+<script>
+    function initMap() {
+        const map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: {{ annonce.lat }}, lng: {{ annonce.lng }}},
+            zoom: 15
+        });
+        new google.maps.Marker({
+            position: {lat: {{ annonce.lat }}, lng: {{ annonce.lng }}},
+            map: map
+        });
+    }
+    window.onload = initMap;
+</script>
+{% endblock %}

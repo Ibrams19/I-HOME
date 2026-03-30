@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="hero text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Trouve ton prochain chez-toi</h1>
+        <p class="lead mb-4">Sans courtier • Direct entre particuliers</p>
+        
+        <a href="{{ url_for('listings') }}" class="btn btn-light btn-lg me-3">Voir toutes les annonces</a>
+        
+        {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('register') }}" class="btn btn-success btn-lg">Créer mon compte gratuitement</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <h3>Pour les propriétaires</h3>
+            <p>Publiez vos studios, appartements ou chambres en quelques clics</p>
+            {% if current_user.is_authenticated and session.get('is_owner') %}
+                <a href="{{ url_for('publish') }}" class="btn btn-primary">Publier maintenant</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-outline-primary">Devenir propriétaire sur LocApp</a>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <h3>Pour les locataires / acheteurs</h3>
+            <p>Recherchez par quartier, type et budget</p>
+            <a href="{{ url_for('listings') }}" class="btn btn-primary">Commencer ma recherche</a>
+        </div>
+        <div class="col-md-4">
+            <h3>Sans intermédiaire</h3>
+            <p>Discutez directement avec le propriétaire</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

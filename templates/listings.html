@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Annonces disponibles</h2>
+
+<!-- Filtres -->
+<form method="GET" class="row g-3 mb-4 bg-light p-4 rounded">
+    <div class="col-md-3">
+        <select name="type" class="form-select">
+            <option value="">Tout type de bien</option>
+            <option value="studio" {% if filters and filters.type == 'studio' %}selected{% endif %}>Studio</option>
+            <option value="appartement" {% if filters and filters.type == 'appartement' %}selected{% endif %}>Appartement</option>
+            <option value="chambre" {% if filters and filters.type == 'chambre' %}selected{% endif %}>Chambre</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="transaction" class="form-select">
+            <option value="">Louer ou Acheter</option>
+            <option value="louer" {% if filters and filters.transaction == 'louer' %}selected{% endif %}>Louer</option>
+            <option value="acheter" {% if filters and filters.transaction == 'acheter' %}selected{% endif %}>Acheter</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="neighborhood" class="form-control" placeholder="Quartier" value="{% if filters %}{{ filters.neighborhood or '' }}{% endif %}">
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">Appliquer les filtres</button>
+    </div>
+</form>
+
+<div class="row">
+    {% if annonces %}
+        {% for annonce in annonces %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if annonce.image_url %}
+                <img src="{{ annonce.image_url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Photo">
+                {% else %}
+                <div class="card-img-top bg-secondary" style="height: 200px; display: flex; align-items: center; justify-content: center; color: white;">
+                    Pas de photo
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ annonce.title }}</h5>
+                    <p class="card-text">
+                        <strong>{{ annonce.property_type|capitalize }} • {{ annonce.transaction_type|capitalize }}</strong><br>
+                        {{ annonce.neighborhood }}<br>
+                        <span class="text-success fw-bold fs-5">{{ annonce.price }} FCFA</span>
+                    </p>
+                    <a href="{{ url_for('listing_detail', listing_id=annonce.id) }}" class="btn btn-primary">Voir détails</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info col-12">
+            Aucune annonce trouvée avec ces filtres.<br>
+            Essayez d'élargir votre recherche.
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
