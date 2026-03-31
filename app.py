@@ -1,70 +1,61 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
-import sqlite3
 import os
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = "supersecretkeylocapp2026"
+app.secret_key = os.environ.get('SECRET_KEY', 'supersecretkeylocapp2026')
+
+# ==================== CONFIGURATION BASE DE DONNÉES ====================
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+if app.config['SQLALCHEMY_DATABASE_URI'] and app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 Mo max
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-GOOGLE_MAPS_API_KEY = "TA_CLE_API_GOOGLE"  # ← Remplace par ta clé !
+# ====================== MODÈLES ======================
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    is_owner = db.Column(db.Boolean, default=False)
 
-def get_db():
-    db = sqlite3.connect('instance/database.db')
-    db.row_factory = sqlite3.Row
-    return db
-
-# Création tables + colonne lat/lng pour la carte
-with get_db() as db:
-    db.executescript('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            is_owner BOOLEAN DEFAULT 0
-        );
-        CREATE TABLE IF NOT EXISTS listings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            title TEXT,
-            property_type TEXT,
-            transaction_type TEXT,
-            neighborhood TEXT,
-            price INTEGER,
-            description TEXT,
-            image_url TEXT,
-            lat REAL DEFAULT 14.6937,   -- coordonnées par défaut Dakar
-            lng REAL DEFAULT -17.4441,
-            date_posted TEXT
-        );
-    ''')
-
-class User(UserMixin):
-    def __init__(self, id, username):
-        self.id = id
-        self.username = username
+class Listing(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(150), nullable=False)
+    property_type = db.Column(db.String(50), nullable=False)      # studio, appartement, chambre
+    transaction_type = db.Column(db.String(20), nullable=False)   # louer, acheter
+    neighborhood = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(300), default='/static/default.jpg')
+    lat = db.Column(db.Float, default=14.6937)
+    lng = db.Column(db.Float, default=-17.4441)
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 
 @login_manager.user_loader
 def load_user(user_id):
-    with get_db() as db:
-        user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
-        return User(user['id'], user['username']) if user else None
+    return User.query.get(int(user_id))
 
-# Route pour servir les images uploadées
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+# Création des tables
+with app.app_context():
+    db.create_all()
+
+# ====================== ROUTES ======================
 
 @app.route('/')
 def index():
@@ -77,15 +68,14 @@ def register():
         password = generate_password_hash(request.form['password'])
         is_owner = 'is_owner' in request.form
 
-        try:
-            with get_db() as db:
-                db.execute("INSERT INTO users (username, password, is_owner) VALUES (?, ?, ?)",
-                          (username, password, is_owner))
-                db.commit()
-            flash("Compte créé ! Tu peux maintenant te connecter.", "success")
-            return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
+        if User.query.filter_by(username=username).first():
             flash("Ce nom d'utilisateur existe déjà.", "danger")
+        else:
+            new_user = User(username=username, password=password, is_owner=is_owner)
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Compte créé avec succès !", "success")
+            return redirect(url_for('login'))
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -93,14 +83,13 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        with get_db() as db:
-            user = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
-            if user and check_password_hash(user['password'], password):
-                login_user(User(user['id'], user['username']))
-                session['is_owner'] = bool(user['is_owner'])
-                flash("Connexion réussie !", "success")
-                return redirect(url_for('listings'))
-            flash("Identifiants incorrects.", "danger")
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            session['is_owner'] = user.is_owner
+            flash("Connexion réussie !", "success")
+            return redirect(url_for('listings'))
+        flash("Identifiants incorrects.", "danger")
     return render_template('login.html')
 
 @app.route('/logout')
@@ -137,25 +126,33 @@ def publish():
                 filename = secure_filename(file.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(filepath)
-                # Redimensionner pour optimiser
-                img = Image.open(filepath)
-                img.thumbnail((800, 600))
-                img.save(filepath)
+                try:
+                    img = Image.open(filepath)
+                    img.thumbnail((800, 600))
+                    img.save(filepath)
+                except:
+                    pass
                 image_url = f'/uploads/{filename}'
 
-        with get_db() as db:
-            db.execute('''
-                INSERT INTO listings 
-                (user_id, title, property_type, transaction_type, neighborhood, price, description, image_url, lat, lng, date_posted)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (current_user.id, title, property_type, transaction_type, neighborhood, 
-                  price, description, image_url, lat, lng, datetime.now().strftime("%Y-%m-%d")))
-            db.commit()
+        new_listing = Listing(
+            user_id=current_user.id,
+            title=title,
+            property_type=property_type,
+            transaction_type=transaction_type,
+            neighborhood=neighborhood,
+            price=price,
+            description=description,
+            image_url=image_url,
+            lat=lat,
+            lng=lng
+        )
+        db.session.add(new_listing)
+        db.session.commit()
 
         flash("Annonce publiée avec succès !", "success")
         return redirect(url_for('listings'))
 
-    return render_template('publish.html', google_maps_key=None)
+    return render_template('publish.html')
 
 @app.route('/listings')
 def listings():
@@ -165,50 +162,32 @@ def listings():
     min_price = request.args.get('min_price', type=int)
     max_price = request.args.get('max_price', type=int)
 
-    query = "SELECT * FROM listings WHERE 1=1"
-    params = []
+    query = Listing.query
 
     if property_type:
-        query += " AND property_type = ?"
-        params.append(property_type)
+        query = query.filter_by(property_type=property_type)
     if transaction_type:
-        query += " AND transaction_type = ?"
-        params.append(transaction_type)
+        query = query.filter_by(transaction_type=transaction_type)
     if neighborhood:
-        query += " AND neighborhood LIKE ?"
-        params.append(f"%{neighborhood}%")
+        query = query.filter(Listing.neighborhood.ilike(f"%{neighborhood}%"))
     if min_price is not None:
-        query += " AND price >= ?"
-        params.append(min_price)
+        query = query.filter(Listing.price >= min_price)
     if max_price is not None:
-        query += " AND price <= ?"
-        params.append(max_price)
+        query = query.filter(Listing.price <= max_price)
 
-    query += " ORDER BY date_posted DESC"
+    annonces = query.order_by(Listing.date_posted.desc()).all()
 
-    with get_db() as db:
-        annonces = db.execute(query, params).fetchall()
-
-    return render_template('listings.html', 
-                         annonces=annonces,
-                         google_maps_key=None,
-                         filters={
-                             'type': property_type,
-                             'transaction': transaction_type,
-                             'neighborhood': neighborhood,
-                             'min_price': min_price,
-                             'max_price': max_price
-                         })
+    return render_template('listings.html', annonces=annonces)
 
 @app.route('/listing/<int:listing_id>')
 def listing_detail(listing_id):
-    with get_db() as db:
-        annonce = db.execute("SELECT * FROM listings WHERE id = ?", (listing_id,)).fetchone()
-    if not annonce:
-        flash("Annonce introuvable.", "danger")
-        return redirect(url_for('listings'))
-    return render_template('detail.html', annonce=annonce, google_maps_key=None)
+    annonce = Listing.query.get_or_404(listing_id)
+    return render_template('detail.html', annonce=annonce)
+
+# Servir les images uploadées
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
-    os.makedirs('instance', exist_ok=True)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
