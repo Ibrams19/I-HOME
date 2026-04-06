@@ -1,62 +1,300 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Annonces - I-HOME{% endblock %}
+
 {% block content %}
-<h2 class="mb-4">Annonces disponibles</h2>
-
-<!-- Filtres -->
-<form method="GET" class="row g-3 mb-4 bg-light p-4 rounded">
-    <div class="col-md-3">
-        <select name="type" class="form-select">
-            <option value="">Tout type de bien</option>
-            <option value="studio" {% if filters and filters.type == 'studio' %}selected{% endif %}>Studio</option>
-            <option value="appartement" {% if filters and filters.type == 'appartement' %}selected{% endif %}>Appartement</option>
-            <option value="chambre" {% if filters and filters.type == 'chambre' %}selected{% endif %}>Chambre</option>
-        </select>
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">
+            <i class="fas fa-search text-primary me-2"></i>Découvrez nos annonces
+        </h1>
+        <p class="text-muted">Trouvez le bien qui vous correspond</p>
     </div>
-    <div class="col-md-3">
-        <select name="transaction" class="form-select">
-            <option value="">Louer ou Acheter</option>
-            <option value="louer" {% if filters and filters.transaction == 'louer' %}selected{% endif %}>Louer</option>
-            <option value="acheter" {% if filters and filters.transaction == 'acheter' %}selected{% endif %}>Acheter</option>
-        </select>
-    </div>
-    <div class="col-md-3">
-        <input type="text" name="neighborhood" class="form-control" placeholder="Quartier" value="{% if filters %}{{ filters.neighborhood or '' }}{% endif %}">
-    </div>
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary w-100">Appliquer les filtres</button>
-    </div>
-</form>
-
-<div class="row">
-    {% if annonces %}
-        {% for annonce in annonces %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                {% if annonce.image_url %}
-                <img src="{{ annonce.image_url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Photo">
-                {% else %}
-                <div class="card-img-top bg-secondary" style="height: 200px; display: flex; align-items: center; justify-content: center; color: white;">
-                    Pas de photo
+    
+    <!-- Filtres -->
+    <div class="filter-section mb-5">
+        <h5 class="fw-bold mb-3"><i class="fas fa-sliders-h text-primary me-2"></i>Filtres de recherche</h5>
+        <form method="GET" action="{{ url_for('listings') }}">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select name="type" class="form-select rounded-3">
+                        <option value="">🏠 Tous les types</option>
+                        <option value="studio" {% if request.args.get('type') == 'studio' %}selected{% endif %}>🏠 Studio</option>
+                        <option value="studio_meuble" {% if request.args.get('type') == 'studio_meuble' %}selected{% endif %}>🛋️ Studio meublé</option>
+                        <option value="appartement" {% if request.args.get('type') == 'appartement' %}selected{% endif %}>🏢 Appartement</option>
+                        <option value="appartement_meuble" {% if request.args.get('type') == 'appartement_meuble' %}selected{% endif %}>🛋️ Appartement meublé</option>
+                        <option value="chambre" {% if request.args.get('type') == 'chambre' %}selected{% endif %}>🛏️ Chambre simple</option>
+                        <option value="chambre_meublee" {% if request.args.get('type') == 'chambre_meublee' %}selected{% endif %}>🛋️ Chambre meublée</option>
+                        <option value="magasin" {% if request.args.get('type') == 'magasin' %}selected{% endif %}>🏪 Magasin</option>
+                        <option value="depot" {% if request.args.get('type') == 'depot' %}selected{% endif %}>📦 Dépôt / Entrepôt</option>
+                    </select>
                 </div>
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ annonce.title }}</h5>
-                    <p class="card-text">
-                        <strong>{{ annonce.property_type|capitalize }} • {{ annonce.transaction_type|capitalize }}</strong><br>
-                        {{ annonce.neighborhood }}<br>
-                        <span class="text-success fw-bold fs-5">{{ annonce.price }} FCFA</span>
-                    </p>
-                    <a href="{{ url_for('listing_detail', listing_id=annonce.id) }}" class="btn btn-primary">Voir détails</a>
+                <div class="col-md-3">
+                    <select name="transaction" class="form-select rounded-3">
+                        <option value="">📋 Toutes transactions</option>
+                        <option value="louer" {% if request.args.get('transaction') == 'louer' %}selected{% endif %}>🔑 Location</option>
+                        <option value="acheter" {% if request.args.get('transaction') == 'acheter' %}selected{% endif %}>💰 Vente</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="neighborhood" class="form-control rounded-3" 
+                           placeholder="📍 Quartier" value="{{ request.args.get('neighborhood', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 rounded-3">
+                        <i class="fas fa-search me-1"></i>Filtrer
+                    </button>
                 </div>
             </div>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <input type="number" name="min_price" class="form-control rounded-3" 
+                           placeholder="💰 Prix min" value="{{ request.args.get('min_price', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="max_price" class="form-control rounded-3" 
+                           placeholder="💰 Prix max" value="{{ request.args.get('max_price', '') }}">
+                </div>
+                <div class="col-md-6">
+                    <a href="{{ url_for('listings') }}" class="text-decoration-none small">
+                        <i class="fas fa-undo me-1"></i>Réinitialiser les filtres
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Nombre d'annonces -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold">
+            <i class="fas fa-home me-2"></i>{{ pagination.total if pagination else annonces|length }} annonce(s) trouvée(s)
+        </h5>
+    </div>
+    
+    <!-- Liste des annonces -->
+    {% if annonces %}
+        <div class="row g-4">
+            {% for annonce in annonces %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card">
+                    <div class="position-relative">
+                        <img src="{{ annonce.image_url }}" class="card-img-top lazy" alt="{{ annonce.title }}" 
+                             style="height: 220px; object-fit: cover; width: 100%; background: #f0f0f0;"
+                             data-src="{{ annonce.image_url }}"
+                             onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Photo'">
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge {% if annonce.transaction_type == 'louer' %}bg-success{% else %}bg-warning text-dark{% endif %} px-3 py-2 rounded-pill">
+                                {% if annonce.transaction_type == 'louer' %}
+                                    <i class="fas fa-key me-1"></i> Location
+                                {% else %}
+                                    <i class="fas fa-handshake me-1"></i> Vente
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-dark px-3 py-2 rounded-pill">
+                                <i class="fas fa-building me-1"></i> 
+                                {% if annonce.property_type == 'studio' %}Studio
+                                {% elif annonce.property_type == 'studio_meuble' %}Studio meublé
+                                {% elif annonce.property_type == 'appartement' %}Appartement
+                                {% elif annonce.property_type == 'appartement_meuble' %}Appartement meublé
+                                {% elif annonce.property_type == 'chambre_meublee' %}Chambre meublée
+                                {% elif annonce.property_type == 'magasin' %}Magasin
+                                {% elif annonce.property_type == 'depot' %}Dépôt / Entrepôt
+                                {% else %}Chambre simple{% endif %}
+                            </span>
+                        </div>
+                        <!-- Badge de mise en avant selon abonnement -->
+                        {% if annonce.auteur.subscription_type == 'pro' %}
+                        <div class="position-absolute bottom-0 end-0 m-3">
+                            <span class="badge bg-danger rounded-pill">
+                                <i class="fas fa-crown me-1"></i> Pro
+                            </span>
+                        </div>
+                        {% elif annonce.auteur.subscription_type == 'premium' %}
+                        <div class="position-absolute bottom-0 end-0 m-3">
+                            <span class="badge bg-warning text-dark rounded-pill">
+                                <i class="fas fa-gem me-1"></i> Premium
+                            </span>
+                        </div>
+                        {% elif annonce.auteur.subscription_type == 'basic' %}
+                        <div class="position-absolute bottom-0 end-0 m-3">
+                            <span class="badge bg-primary rounded-pill">
+                                <i class="fas fa-star me-1"></i> Basic
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title fw-bold mb-0">{{ annonce.title[:40] }}{% if annonce.title|length > 40 %}...{% endif %}</h5>
+                            <form action="{{ url_for('add_favorite', listing_id=annonce.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-link text-danger p-0">
+                                    <i class="far fa-heart fa-lg"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="mb-2">
+                            <span class="h3 text-primary fw-bold">{{ "{:,.0f}".format(annonce.price) }} FCFA</span>
+                            {% if annonce.transaction_type == 'louer' %}
+                                {% if annonce.price_type == 'day' %}
+                                    <small class="text-muted">/nuit</small>
+                                {% else %}
+                                    <small class="text-muted">/mois</small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small mb-3">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ annonce.neighborhood }}
+                            <span class="mx-1">•</span>
+                            <i class="fas fa-eye me-1"></i> {{ annonce.views }} vues
+                        </div>
+                        <p class="card-text text-muted small mb-4">
+                            {{ annonce.description[:100] }}{% if annonce.description|length > 100 %}...{% endif %}
+                        </p>
+                        <a href="{{ url_for('listing_detail', listing_id=annonce.id) }}" 
+                           class="btn btn-primary w-100 rounded-pill">
+                            <i class="fas fa-eye me-1"></i> Voir les détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link rounded-pill mx-1" href="{{ url_for('listings', page=pagination.prev_num, **request.args) }}">
+                        <i class="fas fa-chevron-left me-1"></i> Précédent
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-pill mx-1">Précédent</span>
+                </li>
+                {% endif %}
+                
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num == pagination.page %}
+                        <li class="page-item active">
+                            <span class="page-link rounded-pill mx-1">{{ page_num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link rounded-pill mx-1" href="{{ url_for('listings', page=page_num, **request.args) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link rounded-pill mx-1">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-pill mx-1" href="{{ url_for('listings', page=pagination.next_num, **request.args) }}">
+                        Suivant <i class="fas fa-chevron-right ms-1"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-pill mx-1">Suivant</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
     {% else %}
-        <div class="alert alert-info col-12">
-            Aucune annonce trouvée avec ces filtres.<br>
-            Essayez d'élargir votre recherche.
+        <!-- Message quand aucune annonce -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-home fa-5x text-muted"></i>
+            </div>
+            <h4 class="fw-bold">Aucune annonce trouvée</h4>
+            <p class="text-muted mb-4">Aucune annonce ne correspond à vos critères de recherche.</p>
+            <a href="{{ url_for('listings') }}" class="btn btn-primary rounded-pill px-4">
+                <i class="fas fa-undo me-1"></i> Voir toutes les annonces
+            </a>
+            {% if current_user.is_authenticated and current_user.can_publish %}
+                <a href="{{ url_for('publish') }}" class="btn btn-outline-primary rounded-pill px-4 ms-2">
+                    <i class="fas fa-plus-circle me-1"></i> Publier une annonce
+                </a>
+            {% endif %}
         </div>
     {% endif %}
 </div>
 
+<!-- Lazy Loading Script -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let lazyImages = document.querySelectorAll(".lazy");
+    
+    if ("IntersectionObserver" in window) {
+        let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    let lazyImage = entry.target;
+                    lazyImage.src = lazyImage.dataset.src;
+                    lazyImage.classList.remove("lazy");
+                    lazyImageObserver.unobserve(lazyImage);
+                }
+            });
+        });
+        
+        lazyImages.forEach(function(lazyImage) {
+            lazyImageObserver.observe(lazyImage);
+        });
+    } else {
+        lazyImages.forEach(function(lazyImage) {
+            lazyImage.src = lazyImage.dataset.src;
+        });
+    }
+});
+</script>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    .lazy {
+        background-color: #f0f0f0;
+    }
+    .page-link {
+        border-radius: 8px;
+        margin: 0 2px;
+        color: #2563eb;
+        border: none;
+        padding: 8px 16px;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        border: none;
+    }
+    .page-link:hover {
+        background: #e9ecef;
+        color: #1e3c72;
+    }
+    .filter-section {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+</style>
 {% endblock %}

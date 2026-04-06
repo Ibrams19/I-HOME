@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Mon profil - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fas fa-user-circle fa-4x text-primary"></i>
+                        </div>
+                        <h2 class="fw-bold">Mon profil</h2>
+                        <p class="text-muted">Gérez vos informations personnelles</p>
+                    </div>
+                    
+                    {% if not profil_complet %}
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>⚠️ Attention !</strong> Pour publier des annonces, vous devez renseigner votre email et votre numéro WhatsApp ci-dessous.
+                    </div>
+                    {% endif %}
+                    
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nom d'utilisateur</label>
+                            <input type="text" class="form-control bg-light" value="{{ current_user.username }}" disabled>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-envelope me-1"></i> Email
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" name="email" class="form-control {% if not current_user.email %}border-danger{% endif %}" 
+                                   value="{{ current_user.email or '' }}" placeholder="votre@email.com" required>
+                            <small class="text-muted">Utilisé pour la réinitialisation du mot de passe</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user-tag me-1"></i> Statut
+                            </label>
+                            <div class="form-control bg-light">
+                                {% if current_user.is_broker %}
+                                    <i class="fas fa-building text-info"></i> Courtier immobilier
+                                    {% if current_user.agency_name %}
+                                        - {{ current_user.agency_name }}
+                                    {% endif %}
+                                {% elif current_user.is_owner %}
+                                    <i class="fas fa-home text-success"></i> Propriétaire
+                                {% else %}
+                                    <i class="fas fa-search text-secondary"></i> Locataire / Acheteur
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if current_user.is_broker %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-building"></i> Nom de l'agence
+                            </label>
+                            <input type="text" name="agency_name" class="form-control" value="{{ current_user.agency_name or '' }}" placeholder="Nom de votre agence">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fab fa-whatsapp text-success me-1"></i> Numéro WhatsApp
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" name="phone_number" class="form-control {% if not current_user.phone_number %}border-danger{% endif %}" 
+                                   placeholder="+221 78 123 45 67" value="{{ current_user.phone_number or '' }}" required>
+                            <small class="text-muted">
+                                Ce numéro sera visible sur vos annonces pour être contacté directement.
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                            <i class="fas fa-save me-1"></i> Enregistrer et continuer
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="fas fa-key me-1"></i> Changer mon mot de passe
+                        </button>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        {% if current_user.can_publish %}
+                            <a href="{{ url_for('my_listings') }}" class="btn btn-outline-secondary rounded-pill">
+                                <i class="fas fa-list me-1"></i> Mes annonces
+                            </a>
+                            <a href="{{ url_for('subscription') }}" class="btn btn-outline-warning rounded-pill ms-2">
+                                <i class="fas fa-crown me-1"></i> Abonnements
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Changement de mot de passe -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="changePasswordModalLabel">
+                    <i class="fas fa-key text-primary me-2"></i>Changer mon mot de passe
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('change_password') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mot de passe actuel</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-3">
+                                <i class="fas fa-lock text-muted"></i>
+                            </span>
+                            <input type="password" name="current_password" class="form-control rounded-end-3" 
+                                   placeholder="Entrez votre mot de passe actuel" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nouveau mot de passe</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-3">
+                                <i class="fas fa-key text-muted"></i>
+                            </span>
+                            <input type="password" name="new_password" id="new_password" class="form-control" 
+                                   placeholder="Entrez votre nouveau mot de passe" required>
+                            <button type="button" class="btn btn-outline-secondary rounded-end-3" onclick="togglePassword('new_password', 'new_icon')">
+                                <i class="fas fa-eye" id="new_icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-3">
+                                <i class="fas fa-check-circle text-muted"></i>
+                            </span>
+                            <input type="password" name="confirm_password" id="confirm_password" class="form-control" 
+                                   placeholder="Confirmez votre nouveau mot de passe" required>
+                            <button type="button" class="btn btn-outline-secondary rounded-end-3" onclick="togglePassword('confirm_password', 'confirm_icon')">
+                                <i class="fas fa-eye" id="confirm_icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info small">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <strong>Conseils de sécurité :</strong>
+                        <ul class="mb-0 mt-2 ps-3">
+                            <li>Au moins 8 caractères</li>
+                            <li>Mélange de lettres majuscules et minuscules</li>
+                            <li>Inclure des chiffres</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">
+                        <i class="fas fa-save me-1"></i> Changer le mot de passe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldId, iconId) {
+    const password = document.getElementById(fieldId);
+    const icon = document.getElementById(iconId);
+    if (password.type === 'password') {
+        password.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        password.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

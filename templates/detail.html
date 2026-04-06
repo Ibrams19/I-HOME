@@ -1,32 +1,308 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}{{ annonce.title }} - I-HOME{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <img src="{{ annonce.image_url }}" class="img-fluid rounded mb-4" style="max-height:500px; width:100%; object-fit:cover;">
-        <h2>{{ annonce.title }}</h2>
-        <h4 class="text-success">{{ annonce.price }} FCFA</h4>
-        <p><strong>{{ annonce.property_type.capitalize() }} • {{ annonce.transaction_type.capitalize() }}</strong></p>
-        <p><strong>Quartier :</strong> {{ annonce.neighborhood }}</p>
-        <p>{{ annonce.description }}</p>
-    </div>
-    <div class="col-md-4">
-        <div id="map" style="height:400px;"></div>
-        <a href="{{ url_for('listings') }}" class="btn btn-secondary mt-3">Retour aux annonces</a>
+<div class="container py-4">
+    <!-- Fil d'Ariane -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-decoration-none">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('listings') }}" class="text-decoration-none">Annonces</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ annonce.title[:50] }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Colonne gauche -->
+        <div class="col-lg-8">
+            <!-- Galerie photos -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                {% set images = annonce.images.split(',') if annonce.images else [] %}
+                {% if images|length > 1 %}
+                <div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for img in images %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ img }}" class="d-block w-100" alt="Photo {{ loop.index }}" 
+                                 style="height: 450px; object-fit: cover;"
+                                 onerror="this.src='https://placehold.co/800x450/e2e8f0/475569?text=Photo+non+disponible'">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                        <span class="visually-hidden">Précédent</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                        <span class="visually-hidden">Suivant</span>
+                    </button>
+                </div>
+                <div class="p-3 text-center bg-light">
+                    <small><i class="fas fa-images me-1"></i> {{ images|length }} photos</small>
+                </div>
+                {% else %}
+                <img src="{{ annonce.image_url }}" class="card-img-top" alt="{{ annonce.title }}" 
+                     style="height: 450px; object-fit: cover;"
+                     onerror="this.src='https://placehold.co/800x450/e2e8f0/475569?text=Photo+non+disponible'">
+                {% endif %}
+            </div>
+            
+            <!-- Titre et prix -->
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <h1 class="h2 fw-bold mb-0">{{ annonce.title }}</h1>
+                <div class="text-end">
+                    <span class="h1 text-primary fw-bold">{{ "{:,.0f}".format(annonce.price) }} FCFA</span>
+                    {% if annonce.transaction_type == 'louer' %}
+                        {% if annonce.price_type == 'day' %}
+                            <small class="text-muted">/nuit</small>
+                        {% else %}
+                            <small class="text-muted">/mois</small>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Badges -->
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <span class="badge {% if annonce.transaction_type == 'louer' %}bg-success{% else %}bg-warning text-dark{% endif %} px-3 py-2">
+                    {% if annonce.transaction_type == 'louer' %}
+                        <i class="fas fa-key me-1"></i> Location
+                    {% else %}
+                        <i class="fas fa-handshake me-1"></i> Vente
+                    {% endif %}
+                </span>
+                <span class="badge bg-primary px-3 py-2">
+                    <i class="fas fa-building me-1"></i> 
+                    {% if annonce.property_type == 'studio' %}Studio
+                    {% elif annonce.property_type == 'studio_meuble' %}Studio meublé
+                    {% elif annonce.property_type == 'appartement' %}Appartement
+                    {% elif annonce.property_type == 'appartement_meuble' %}Appartement meublé
+                    {% elif annonce.property_type == 'chambre_meublee' %}Chambre meublée
+                    {% else %}Chambre simple{% endif %}
+                    {% elif annonce.property_type == 'magasin' %}
+                         Magasin
+                    {% elif annonce.property_type == 'depot' %}
+                        Dépôt / Entrepôt
+                </span>
+                <span class="badge bg-secondary px-3 py-2">
+                    <i class="fas fa-map-marker-alt me-1"></i> {{ annonce.neighborhood }}
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-calendar-alt me-1"></i> {{ annonce.date_posted.strftime('%d/%m/%Y') }}
+                </span>
+                <span class="badge bg-info px-3 py-2">
+                    <i class="fas fa-eye me-1"></i> {{ annonce.views }} vues
+                </span>
+                {% if annonce.auteur.subscription_type == 'pro' %}
+                <span class="badge bg-danger px-3 py-2">
+                    <i class="fas fa-crown me-1"></i> Pro
+                </span>
+                {% elif annonce.auteur.subscription_type == 'premium' %}
+                <span class="badge bg-warning text-dark px-3 py-2">
+                    <i class="fas fa-gem me-1"></i> Premium
+                </span>
+                {% endif %}
+            </div>
+            
+            <!-- Description -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-file-alt text-primary me-2"></i>Description
+                    </h5>
+                    <p class="text-muted" style="line-height: 1.8;">{{ annonce.description }}</p>
+                </div>
+            </div>
+            
+            <!-- Informations supplémentaires -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <i class="fas fa-tag fa-2x text-primary mb-2"></i>
+                        <div class="small text-muted">Type de bien</div>
+                        <div class="fw-bold">{{ annonce.property_type|replace('_', ' ')|title }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <i class="fas fa-exchange-alt fa-2x text-primary mb-2"></i>
+                        <div class="small text-muted">Transaction</div>
+                        <div class="fw-bold">{{ annonce.transaction_type|capitalize }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <i class="fas fa-money-bill-wave fa-2x text-primary mb-2"></i>
+                        <div class="small text-muted">Prix</div>
+                        <div class="fw-bold">{{ "{:,.0f}".format(annonce.price) }} FCFA
+                            {% if annonce.transaction_type == 'louer' %}
+                                {% if annonce.price_type == 'day' %}/jour{% else %}/mois{% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded-4 p-3 text-center">
+                        <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                        <div class="small text-muted">Publié par</div>
+                        <div class="fw-bold">
+                            {% if annonce.auteur.is_broker %}
+                                <span class="badge bg-info mb-1">Courtier</span><br>
+                            {% elif annonce.auteur.is_owner %}
+                                <span class="badge bg-success mb-1">Propriétaire</span><br>
+                            {% endif %}
+                            <span class="text-dark">{{ annonce.auteur.username }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonne droite - Contact -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 sticky-top" style="top: 90px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-phone-alt text-primary me-2"></i>Contacter
+                        {% if annonce.auteur.is_broker %}
+                            <span class="badge bg-info ms-2">Courtier</span>
+                        {% elif annonce.auteur.is_owner %}
+                            <span class="badge bg-success ms-2">Propriétaire</span>
+                        {% endif %}
+                    </h5>
+                    
+                    {% if annonce.auteur.is_broker and annonce.auteur.agency_name %}
+                    <div class="mb-3 p-3 bg-light rounded-3">
+                        <i class="fas fa-building text-primary me-2"></i>
+                        <strong>{{ annonce.auteur.agency_name }}</strong>
+                        <div class="small text-muted">Courtier immobilier</div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- WhatsApp -->
+                    {% if annonce.auteur.phone_number %}
+                    <div class="alert alert-success mb-3">
+                        <div class="text-center">
+                            <i class="fab fa-whatsapp fa-2x text-success"></i>
+                            <div class="fw-bold fs-5 mt-1">{{ annonce.auteur.phone_number }}</div>
+                            
+                            {% set message = "Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9%20par%20votre%20annonce%20%3A%20" + annonce.title|urlencode + "%0A%0A%F0%9F%8F%A0%20Titre%20%3A%20" + annonce.title|urlencode + "%0A%F0%9F%93%8D%20Quartier%20%3A%20" + annonce.neighborhood|urlencode + "%0A%F0%9F%92%B0%20Prix%20%3A%20" + "{:,.0f}".format(annonce.price)|urlencode + "%20FCFA%0A%0A%F0%9F%94%97%20Lien%20de%20l%27annonce%20%3A%20" + url_for('listing_detail', listing_id=annonce.id, _external=True)|urlencode %}
+                            
+                            <a href="https://wa.me/{{ annonce.auteur.phone_number|replace('+', '') }}?text={{ message }}" 
+                               target="_blank" class="btn btn-success w-100 mt-3 rounded-pill">
+                                <i class="fab fa-whatsapp me-1"></i>Envoyer un message
+                            </a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-info-circle"></i>
+                        <div>Numéro WhatsApp non renseigné</div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Email direct -->
+                    {% if annonce.auteur.email %}
+                    <div class="mt-2">
+                        <a href="mailto:{{ annonce.auteur.email }}?subject={{ 'Demande d\'information - ' + annonce.title|urlencode }}&body={{ 'Bonjour%2C%0A%0AJe%20suis%20int%C3%A9ress%C3%A9%20par%20votre%20annonce%20:%20' + annonce.title|urlencode + '%0A%0AJe%20souhaiterais%20avoir%20plus%20d%27informations.%0A%0ACordialement.' }}" 
+                           class="btn btn-outline-secondary w-100 rounded-pill">
+                            <i class="fas fa-envelope me-1"></i> Envoyer un email
+                        </a>
+                        <small class="text-muted d-block text-center mt-2">Email envoyé à {{ annonce.auteur.username }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <!-- Messagerie interne -->
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.id != annonce.user_id %}
+                            <a href="{{ url_for('start_conversation', listing_id=annonce.id) }}" class="btn btn-outline-primary w-100 rounded-pill">
+                                <i class="fas fa-envelope me-1"></i>Message privé
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('start_conversation', listing_id=annonce.id) }}" class="btn btn-outline-primary w-100 rounded-pill">
+                                <i class="fas fa-comments me-1"></i>Voir messages
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center">
+                            <p class="text-muted mb-3">Connectez-vous pour contacter</p>
+                            <a href="{{ url_for('login') }}" class="btn btn-primary w-100 rounded-pill">Se connecter</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 rounded-pill mt-2">Créer un compte</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Partager -->
+            <div class="card border-0 shadow-sm rounded-4 mt-3">
+                <div class="card-body p-3 text-center">
+                    <small class="text-muted">Partager cette annonce</small>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <button class="btn btn-sm btn-outline-success rounded-circle" onclick="shareOnWhatsApp()" title="Partager sur WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="shareOnFacebook()" title="Partager sur Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="copyLink()" title="Copier le lien">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_key }}"></script>
 <script>
-    function initMap() {
-        const map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: {{ annonce.lat }}, lng: {{ annonce.lng }}},
-            zoom: 15
-        });
-        new google.maps.Marker({
-            position: {lat: {{ annonce.lat }}, lng: {{ annonce.lng }}},
-            map: map
-        });
-    }
-    window.onload = initMap;
+function shareOnWhatsApp() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent("🏠 " + "{{ annonce.title }}");
+    const price = "{{ "{:,.0f}".format(annonce.price) }} FCFA";
+    const neighborhood = "{{ annonce.neighborhood }}";
+    const message = encodeURIComponent(
+        `🏠 *${title}*\n` +
+        `📍 *Quartier :* ${neighborhood}\n` +
+        `💰 *Prix :* ${price}\n` +
+        `\n🔗 *Lien de l'annonce :* ${window.location.href}\n` +
+        `\n📲 Envoyé via I-HOME`
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+}
+
+function shareOnFacebook() {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href);
+    const toast = document.createElement('div');
+    toast.className = 'position-fixed bottom-0 end-0 m-3 bg-success text-white p-3 rounded-3 shadow';
+    toast.innerHTML = '<i class="fas fa-check-circle me-2"></i>Lien copié !';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
 </script>
+
+<style>
+    .rounded-4 {
+        border-radius: 20px;
+    }
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-size: 60%;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        padding: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .carousel-item img {
+            height: 300px;
+        }
+    }
+</style>
 {% endblock %}

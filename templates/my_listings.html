@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Mes annonces - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- ========== ALERTE D'EXPIRATION D'ABONNEMENT ========== -->
+    {% if abonnement_expire %}
+    <div class="alert alert-danger mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <i class="fas fa-exclamation-triangle fa-2x float-start me-3"></i>
+                <div>
+                    <strong>⚠️ Votre abonnement a expiré !</strong><br>
+                    <small>Vous êtes passé en mode gratuit.</small>
+                </div>
+            </div>
+            <a href="{{ url_for('subscription') }}" class="btn btn-danger rounded-pill">
+                <i class="fas fa-crown me-1"></i>Renouveler mon abonnement
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- ========== ALERTE PLUS QUE 5 ANNONCES GRATUITES RESTANTES ========== -->
+    {% if user.subscription_type == 'free' and annonces_gratuites_restantes_global <= 5 and annonces_gratuites_restantes_global > 0 %}
+    <div class="alert alert-warning mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <i class="fas fa-clock fa-2x float-start me-3"></i>
+                <div>
+                    <strong>⚠️ Plus que {{ annonces_gratuites_restantes_global }} annonces gratuites sur la plateforme !</strong><br>
+                    <small>Pensez à souscrire un abonnement pour continuer à publier.</small>
+                </div>
+            </div>
+            <a href="{{ url_for('subscription') }}" class="btn btn-warning rounded-pill">
+                <i class="fas fa-crown me-1"></i>Voir les abonnements
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- ========== ALERTE ABONNEMENT QUI EXPIRE BIENTÔT ========== -->
+    {% if user.subscription_type != 'free' and user.subscription_end %}
+        {% set jours_restants = (user.subscription_end - now).days %}
+        {% if jours_restants <= 7 and jours_restants > 0 %}
+        <div class="alert alert-info mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <i class="fas fa-hourglass-half fa-2x float-start me-3"></i>
+                    <div>
+                        <strong>📅 Votre abonnement {{ user.subscription_type|upper }} expire dans {{ jours_restants }} jour(s)</strong><br>
+                        <small>Le {{ user.subscription_end.strftime('%d/%m/%Y') }}</small>
+                    </div>
+                </div>
+                <a href="{{ url_for('subscription') }}" class="btn btn-info rounded-pill">
+                    <i class="fas fa-sync-alt me-1"></i>Renouveler
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+    
+    <!-- ========== CARTES STATISTIQUES ========== -->
+    <div class="row g-3 mb-4">
+        <!-- Cartes existantes -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 {% if user.subscription_type != 'free' %}bg-primary bg-opacity-10{% else %}bg-success bg-opacity-10{% endif %}">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Annonces gratuites restantes (personnelles)</small>
+                            <h2 class="fw-bold mb-0">
+                                {% if annonces_gratuites_restantes == "Illimité" %}
+                                    <i class="fas fa-infinity"></i>
+                                {% else %}
+                                    {{ annonces_gratuites_restantes }}
+                                {% endif %}
+                            </h2>
+                        </div>
+                        <div class="rounded-circle p-3 {% if user.subscription_type != 'free' %}bg-primary{% else %}bg-success{% endif %} bg-opacity-10">
+                            <i class="fas fa-gift fa-2x {% if user.subscription_type != 'free' %}text-primary{% else %}text-success{% endif %}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-info bg-opacity-10">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total annonces publiées</small>
+                            <h2 class="fw-bold mb-0">{{ total_annonces }}</h2>
+                        </div>
+                        <div class="bg-info rounded-circle p-3 bg-opacity-10">
+                            <i class="fas fa-home fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 {% if user.subscription_type != 'free' %}bg-warning bg-opacity-10{% else %}bg-secondary bg-opacity-10{% endif %}">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Statut</small>
+                            <h5 class="fw-bold mb-0">
+                                {% if user.subscription_type != 'free' %}
+                                    <span class="badge bg-warning">Abonné {{ user.subscription_type|upper }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Mode gratuit</span>
+                                {% endif %}
+                            </h5>
+                        </div>
+                        <div class="rounded-circle p-3 bg-opacity-10">
+                            <i class="fas fa-user-circle fa-2x text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== NOUVELLE CARTE : ANNONCES GRATUITES GLOBALES ========== -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm rounded-4 bg-gradient-gold">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-warning rounded-circle p-3">
+                                <i class="fas fa-globe fa-2x text-white"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted text-uppercase">Offre de lancement</small>
+                                <h2 class="fw-bold mb-0">
+                                    {% if annonces_gratuites_restantes_global > 0 %}
+                                        {{ annonces_gratuites_restantes_global }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </h2>
+                                <p class="mb-0 small">
+                                    {% if annonces_gratuites_restantes_global > 0 %}
+                                        annonces gratuites restantes sur la plateforme
+                                    {% else %}
+                                        annonces gratuites épuisées - Abonnement requis
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="progress" style="width: 200px; height: 8px;">
+                                {% set percent = ((100 - annonces_gratuites_restantes_global) * 100 / 100) | round(0) %}
+                                <div class="progress-bar bg-warning" style="width: {{ percent }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ percent }}% utilisé</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== BOUTON PUBLIER ========== -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="fas fa-list text-primary me-2"></i>Mes annonces</h2>
+        <a href="{{ url_for('publish') }}" class="btn btn-primary rounded-pill">
+            <i class="fas fa-plus-circle me-1"></i>Nouvelle annonce
+        </a>
+    </div>
+    
+    <!-- ========== LISTE DES ANNONCES ========== -->
+    {% if annonces %}
+        <div class="row g-4">
+            {% for annonce in annonces %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 hover-card">
+                    <div class="position-relative">
+                        <img src="{{ annonce.image_url }}" class="card-img-top" alt="{{ annonce.title }}" 
+                             style="height: 200px; object-fit: cover;"
+                             onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Photo'">
+                        
+                        <!-- Badge de statut -->
+                        <div class="position-absolute top-0 end-0 m-2">
+                            {% if annonce.is_taken %}
+                                <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                                    <i class="fas fa-check-double me-1"></i> Louée/Vendue
+                                </span>
+                            {% elif annonce.is_active %}
+                                <span class="badge bg-success px-3 py-2 rounded-pill">
+                                    <i class="fas fa-check-circle me-1"></i> Active
+                                </span>
+                            {% elif annonce.is_paid %}
+                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                    <i class="fas fa-clock me-1"></i> En attente
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger px-3 py-2 rounded-pill">
+                                    <i class="fas fa-times-circle me-1"></i> Non payée
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Badge transaction -->
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge {% if annonce.transaction_type == 'louer' %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill px-3 py-2">
+                                {% if annonce.transaction_type == 'louer' %}
+                                    <i class="fas fa-key me-1"></i> Location
+                                {% else %}
+                                    <i class="fas fa-handshake me-1"></i> Vente
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-gradient text-white">
+                            <small><i class="fas fa-eye me-1"></i> {{ annonce.views }} vues</small>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <h6 class="card-title fw-bold mb-1">{{ annonce.title[:40] }}{% if annonce.title|length > 40 %}...{% endif %}</h6>
+                        <div class="mb-2">
+                            <span class="h4 text-primary fw-bold">{{ "{:,.0f}".format(annonce.price) }} FCFA</span>
+                            {% if annonce.transaction_type == 'louer' %}
+                                {% if annonce.price_type == 'day' %}<small class="text-muted">/nuit</small>{% else %}<small class="text-muted">/mois</small>{% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small mb-2">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ annonce.neighborhood }}
+                        </div>
+                        
+                        <div class="d-flex gap-2 flex-wrap mt-2">
+                            <a href="{{ url_for('listing_detail', listing_id=annonce.id) }}" class="btn btn-outline-primary flex-grow-1 rounded-pill btn-sm">
+                                <i class="fas fa-eye me-1"></i> Détails
+                            </a>
+                            
+                            {% if not annonce.is_paid and not annonce.is_taken %}
+                                <a href="{{ url_for('payment_page', listing_id=annonce.id) }}" class="btn btn-warning rounded-pill btn-sm">
+                                    <i class="fas fa-credit-card me-1"></i> Payer
+                                </a>
+                            {% endif %}
+                            
+                            {% if not annonce.is_taken and annonce.is_active %}
+                            <form action="{{ url_for('mark_as_taken', listing_id=annonce.id) }}" method="POST" class="d-inline" onsubmit="return confirm('⚠️ Confirmation\n\nÊtes-vous sûr de vouloir marquer cette annonce comme prise ?\n\n✅ Le bien ne sera plus visible dans les recherches.\n✅ Vous pourrez le réactiver plus tard si nécessaire.')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-success rounded-pill btn-sm">
+                                    <i class="fas fa-check-circle me-1"></i> Marquer prise
+                                </button>
+                            </form>
+                            {% elif annonce.is_taken %}
+                            <form action="{{ url_for('reactivate_listing', listing_id=annonce.id) }}" method="POST" class="d-inline" onsubmit="return confirm('⚠️ Confirmation\n\nVoulez-vous réactiver cette annonce ?\n\n✅ Elle sera de nouveau visible dans les recherches.')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-secondary rounded-pill btn-sm">
+                                    <i class="fas fa-sync-alt me-1"></i> Réactiver
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        
+                        {% if annonce.is_taken and annonce.taken_date %}
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-calendar-check me-1"></i> 
+                                Prise le {{ annonce.taken_date.strftime('%d/%m/%Y') }}
+                            </small>
+                        {% else %}
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-calendar-alt me-1"></i> 
+                                Publiée le {{ annonce.date_posted.strftime('%d/%m/%Y') }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-home fa-4x text-muted mb-3"></i>
+            <h4>Aucune annonce pour le moment</h4>
+            <p class="text-muted">Votre première annonce est gratuite !</p>
+            <a href="{{ url_for('publish') }}" class="btn btn-primary rounded-pill">Publier ma première annonce</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    .bg-gradient {
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    }
+    .btn-sm {
+        padding: 0.3rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    .bg-gradient-gold {
+        background: linear-gradient(135deg, #fff8e7 0%, #ffecd2 100%);
+    }
+    .progress {
+        border-radius: 10px;
+        background-color: #e9ecef;
+    }
+    .progress-bar {
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="text-center mb-5">
+        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+            <i class="fas {{ icon }} fa-2x text-primary"></i>
+        </div>
+        <h1 class="display-5 fw-bold">{{ title }}</h1>
+        <p class="text-muted">Découvrez tous nos biens disponibles</p>
+    </div>
+    
+    <!-- Résultats -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="bg-light rounded-pill px-4 py-2">
+            <i class="fas fa-home text-primary me-2"></i>
+            <span class="fw-bold">{{ annonces|length }}</span>
+            <span class="text-muted">annonce(s)</span>
+        </div>
+        <a href="{{ url_for('listings') }}" class="btn btn-outline-secondary rounded-pill">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+    
+    {% if annonces %}
+        <div class="row g-4">
+            {% for annonce in annonces %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card">
+                    <div class="position-relative">
+                        <img src="{{ annonce.image_url }}" class="card-img-top" alt="{{ annonce.title }}" 
+                             style="height: 200px; object-fit: cover; width: 100%;"
+                             onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Photo'">
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge {% if annonce.transaction_type == 'louer' %}bg-success{% else %}bg-warning{% endif %} px-3 py-2 rounded-pill">
+                                {% if annonce.transaction_type == 'louer' %}
+                                    <i class="fas fa-key me-1"></i> Location
+                                {% else %}
+                                    <i class="fas fa-handshake me-1"></i> Vente
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if annonce.property_type in ['studio_meuble', 'appartement_meuble', 'chambre_meublee'] %}
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-info px-3 py-2 rounded-pill">
+                                <i class="fas fa-couch me-1"></i> Meublé
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-2">{{ annonce.title }}</h5>
+                        <div class="mb-2">
+                            <span class="h2 text-primary fw-bold">{{ "{:,.0f}".format(annonce.price) }} FCFA</span>
+                            {% if annonce.transaction_type == 'louer' %}
+                                {% if annonce.price_type == 'day' %}
+                                    <small class="text-muted">/nuit</small>
+                                {% else %}
+                                    <small class="text-muted">/mois</small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small mb-3">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ annonce.neighborhood }}
+                            <span class="mx-1">•</span>
+                            <i class="fas fa-building me-1"></i>
+                            <span>
+                                {% if annonce.property_type == 'studio' %}Studio
+                                {% elif annonce.property_type == 'studio_meuble' %}Studio meublé
+                                {% elif annonce.property_type == 'appartement' %}Appartement
+                                {% elif annonce.property_type == 'appartement_meuble' %}Appartement meublé
+                                {% elif annonce.property_type == 'chambre_meublee' %}Chambre meublée
+                                {% elif annonce.property_type == 'magasin' %}Magasin
+                                {% elif annonce.property_type == 'depot' %}Dépôt / Entrepôt
+                                {% else %}Chambre simple{% endif %}
+                            </span>
+                        </div>
+                        <p class="card-text text-muted small mb-4">
+                            {{ annonce.description[:100] }}{% if annonce.description|length > 100 %}...{% endif %}
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('listing_detail', listing_id=annonce.id) }}" class="btn btn-primary flex-grow-1 rounded-pill">
+                                <i class="fas fa-eye me-1"></i> Voir détails
+                            </a>
+                            <form action="{{ url_for('add_favorite', listing_id=annonce.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-danger rounded-circle" style="width: 42px;">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+                <i class="fas {{ icon }} fa-3x text-muted"></i>
+            </div>
+            <h3 class="fw-bold mb-3">Aucune annonce</h3>
+            <p class="text-muted mb-4">
+                Nous n'avons pas encore d'annonces dans cette catégorie.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('listings') }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-search me-2"></i>Voir toutes
+                </a>
+                {% if current_user.is_authenticated and current_user.can_publish %}
+                    <a href="{{ url_for('publish') }}" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="fas fa-plus-circle me-2"></i>Publier
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="fas fa-user-plus me-2"></i>Créer un compte
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}

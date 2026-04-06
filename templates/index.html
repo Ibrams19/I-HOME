@@ -1,40 +1,373 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Accueil - I-HOME{% endblock %}
+
 {% block content %}
-
-<div class="hero text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold">Trouve ton prochain chez-toi</h1>
-        <p class="lead mb-4">Sans courtier • Direct entre particuliers</p>
-        
-        <a href="{{ url_for('listings') }}" class="btn btn-light btn-lg me-3">Voir toutes les annonces</a>
-        
-        {% if not current_user.is_authenticated %}
-        <a href="{{ url_for('register') }}" class="btn btn-success btn-lg">Créer mon compte gratuitement</a>
-        {% endif %}
-    </div>
-</div>
-
-<div class="container mt-5">
-    <div class="row text-center">
-        <div class="col-md-4">
-            <h3>Pour les propriétaires</h3>
-            <p>Publiez vos studios, appartements ou chambres en quelques clics</p>
-            {% if current_user.is_authenticated and session.get('is_owner') %}
-                <a href="{{ url_for('publish') }}" class="btn btn-primary">Publier maintenant</a>
-            {% else %}
-                <a href="{{ url_for('register') }}" class="btn btn-outline-primary">Devenir propriétaire sur LocApp</a>
+<!-- Hero Section -->
+<section class="hero" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 5rem 0;">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3 text-white">Trouvez votre prochain chez-vous</h1>
+        <p class="lead mb-4 text-white-50">Location, vente - Direct propriétaires et courtiers</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('listings') }}" class="btn btn-light btn-lg px-5">
+                <i class="fas fa-search me-2"></i>Rechercher un bien
+            </a>
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg px-5">
+                    <i class="fas fa-user-plus me-2"></i>Publier une annonce
+                </a>
+            {% elif current_user.can_publish %}
+                <a href="{{ url_for('publish') }}" class="btn btn-outline-light btn-lg px-5">
+                    <i class="fas fa-plus-circle me-2"></i>Publier une annonce
+                </a>
             {% endif %}
         </div>
-        <div class="col-md-4">
-            <h3>Pour les locataires / acheteurs</h3>
-            <p>Recherchez par quartier, type et budget</p>
-            <a href="{{ url_for('listings') }}" class="btn btn-primary">Commencer ma recherche</a>
+    </div>
+</section>
+
+<!-- Annonces récentes -->
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="fas fa-fire text-primary me-2"></i>Annonces récentes</h2>
+            <p class="text-muted small">Les derniers biens mis en ligne</p>
         </div>
-        <div class="col-md-4">
-            <h3>Sans intermédiaire</h3>
-            <p>Discutez directement avec le propriétaire</p>
+        <a href="{{ url_for('listings') }}" class="btn btn-outline-primary rounded-pill">Voir tout <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+    
+    {% if recent_annonces %}
+        <div class="row g-4">
+            {% for annonce in recent_annonces %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden hover-card">
+                    <div class="position-relative">
+                        <img src="{{ annonce.image_url }}" class="card-img-top" alt="{{ annonce.title }}" 
+                             style="height: 200px; object-fit: cover; width: 100%;"
+                             onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Photo'">
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge {% if annonce.transaction_type == 'louer' %}bg-success{% else %}bg-warning text-dark{% endif %} px-3 py-2 rounded-pill">
+                                {% if annonce.transaction_type == 'louer' %}
+                                    <i class="fas fa-key me-1"></i> Location
+                                {% else %}
+                                    <i class="fas fa-handshake me-1"></i> Vente
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if annonce.property_type in ['studio_meuble', 'appartement_meuble', 'chambre_meublee'] %}
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-info px-3 py-2 rounded-pill">
+                                <i class="fas fa-couch me-1"></i> Meublé
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-2">{{ annonce.title }}</h5>
+                        <div class="mb-2">
+                            <span class="h3 text-primary fw-bold">{{ "{:,.0f}".format(annonce.price) }} FCFA</span>
+                            {% if annonce.transaction_type == 'louer' %}
+                                {% if annonce.price_type == 'day' %}
+                                    <small class="text-muted">/nuit</small>
+                                {% else %}
+                                    <small class="text-muted">/mois</small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small mb-3">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ annonce.neighborhood }}
+                        </div>
+                        <a href="{{ url_for('listing_detail', listing_id=annonce.id) }}" class="btn btn-outline-primary w-100 rounded-pill">
+                            <i class="fas fa-eye me-1"></i> Voir détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 bg-light rounded-4">
+            <i class="fas fa-home fa-4x text-muted mb-3"></i>
+            <h4>Aucune annonce pour le moment</h4>
+            <p class="text-muted">Soyez le premier à publier une annonce !</p>
+            {% if current_user.is_authenticated and current_user.can_publish %}
+                <a href="{{ url_for('publish') }}" class="btn btn-primary rounded-pill">Publier ma première annonce</a>
+            {% elif not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary rounded-pill">Créer un compte</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+
+<!-- Types de biens - Version structurée -->
+<section class="container py-5">
+    <h2 class="text-center fw-bold mb-5">Nos types de biens</h2>
+    
+    <!-- Biens non meublés -->
+    <div class="mb-5">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                <i class="fas fa-home fa-2x text-primary"></i>
+            </div>
+            <h3 class="fw-bold mb-0">Biens non meublés</h3>
+            <div class="flex-grow-1 ms-3"><hr class="border-primary border-2 opacity-25"></div>
+        </div>
+        <div class="row g-4">
+            <!-- Appartements -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='appartement') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-building fa-2x text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Appartements</h5>
+                            <p class="text-muted small mb-3">Du studio au 5 pièces</p>
+                            <span class="badge bg-primary bg-opacity-10 text-primary">Voir les annonces →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Chambres simples -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='chambre') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-success bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-bed fa-2x text-success"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Chambres simples</h5>
+                            <p class="text-muted small mb-3">Chambres non meublées</p>
+                            <span class="badge bg-success bg-opacity-10 text-success">Voir les annonces →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Studios -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='studio') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-info bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-city fa-2x text-info"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Studios</h5>
+                            <p class="text-muted small mb-3">Studios non meublés</p>
+                            <span class="badge bg-info bg-opacity-10 text-info">Voir les annonces →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Magasin -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='magasin') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-store fa-2x text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Magasins</h5>
+                            <p class="text-muted small mb-0">Locaux commerciaux</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary bg-opacity-10 text-primary">Voir les annonces →</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Dépôt -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='depot') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-info bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-warehouse fa-2x text-info"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Dépôts / Entrepôts</h5>
+                            <p class="text-muted small mb-0">Stockage, logistique</p>
+                            <div class="mt-3">
+                                <span class="badge bg-info bg-opacity-10 text-info">Voir les annonces →</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
-</div>
+    
+    <!-- Biens meublés -->
+    <div>
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
+                <i class="fas fa-couch fa-2x text-warning"></i>
+            </div>
+            <h3 class="fw-bold mb-0">Biens meublés</h3>
+            <div class="flex-grow-1 ms-3"><hr class="border-warning border-2 opacity-25"></div>
+        </div>
+        <div class="row g-4">
+            <!-- Appartements meublés -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='appartement_meuble') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-warning bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-building fa-2x text-warning"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Appartements meublés</h5>
+                            <p class="text-muted small mb-3">Prêts à vivre, tout équipés</p>
+                            <span class="badge bg-warning bg-opacity-10 text-warning">Voir les annonces →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Chambres meublées -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='chambre_meublee') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-warning bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-bed fa-2x text-warning"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Chambres meublées</h5>
+                            <p class="text-muted small mb-3">Chambres avec mobilier inclus</p>
+                            <span class="badge bg-warning bg-opacity-10 text-warning">Voir les annonces →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Studios meublés -->
+            <div class="col-md-4">
+                <a href="{{ url_for('listings_by_type', type='studio_meuble') }}" class="text-decoration-none">
+                    <div class="card text-center h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                            <div class="icon-wrapper bg-warning bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fas fa-city fa-2x text-warning"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Studios meublés</h5>
+                            <p class="text-muted small mb-3">Studios tout équipés</p>
+                            <span class="badge bg-warning bg-opacity-10 text-warning">Voir les annonces →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- Statistiques -->
+<section class="container py-5">
+    <div class="row text-center g-4">
+        <div class="col-md-3 col-6">
+            <div class="p-3">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-2">
+                    <i class="fas fa-building fa-2x text-primary"></i>
+                </div>
+                <h3 class="fw-bold mb-0">150+</h3>
+                <p class="text-muted small">Biens disponibles</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3">
+                <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex p-3 mb-2">
+                    <i class="fas fa-user-friends fa-2x text-success"></i>
+                </div>
+                <h3 class="fw-bold mb-0">500+</h3>
+                <p class="text-muted small">Clients satisfaits</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3">
+                <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex p-3 mb-2">
+                    <i class="fas fa-map-marker-alt fa-2x text-info"></i>
+                </div>
+                <h3 class="fw-bold mb-0">15+</h3>
+                <p class="text-muted small">Quartiers couverts</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3">
+                <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex p-3 mb-2">
+                    <i class="fas fa-clock fa-2x text-warning"></i>
+                </div>
+                <h3 class="fw-bold mb-0">24/7</h3>
+                <p class="text-muted small">Service disponible</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comment ça marche -->
+<section class="container py-5 bg-light rounded-4">
+    <h2 class="text-center fw-bold mb-5">Comment ça marche ?</h2>
+    <div class="row g-4">
+        <div class="col-md-4 text-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <span class="fs-3 fw-bold">1</span>
+            </div>
+            <h5>Créez un compte</h5>
+            <p class="text-muted">Inscrivez-vous gratuitement en quelques secondes</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <span class="fs-3 fw-bold">2</span>
+            </div>
+            <h5>Publiez ou cherchez</h5>
+            <p class="text-muted">Propriétaires : publiez votre bien<br>Locataires : filtrez par critères</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <span class="fs-3 fw-bold">3</span>
+            </div>
+            <h5>Contact direct</h5>
+            <p class="text-muted">Discutez directement avec le propriétaire ou courtier</p>
+        </div>
+    </div>
+</section>
+
+<!-- Appel à l'action -->
+{% if not current_user.is_authenticated %}
+<section class="container py-5">
+    <div class="bg-primary rounded-4 p-5 text-center text-white" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+        <h2 class="fw-bold mb-3">Prêt à trouver votre prochain chez-vous ?</h2>
+        <p class="mb-4">Rejoignez des centaines d'utilisateurs qui nous font confiance</p>
+        <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5">
+            <i class="fas fa-user-plus me-2"></i>Créer un compte gratuitement
+        </a>
+    </div>
+</section>
+{% endif %}
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    .icon-wrapper {
+        width: 70px;
+        height: 70px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .bg-opacity-10 {
+        --bs-bg-opacity: 0.1;
+    }
+    .text-white-50 {
+        color: rgba(255,255,255,0.7);
+    }
+    @media (max-width: 768px) {
+        .hero {
+            padding: 3rem 0;
+        }
+        .hero h1 {
+            font-size: 1.75rem;
+        }
+        .icon-wrapper {
+            width: 50px;
+            height: 50px;
+        }
+    }
+</style>
 {% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Mes favoris - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="text-center mb-5">
+        <div class="mb-3">
+            <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex p-3">
+                <i class="fas fa-heart fa-3x text-danger"></i>
+            </div>
+        </div>
+        <h1 class="display-5 fw-bold">Mes favoris</h1>
+        <p class="text-muted">Retrouvez toutes vos annonces préférées</p>
+    </div>
+    
+    {% if favorites %}
+        <div class="row g-4">
+            {% for fav in favorites %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card">
+                    <div class="position-relative">
+                        <img src="{{ fav.listing.image_url }}" class="card-img-top" alt="{{ fav.listing.title }}" 
+                             style="height: 200px; object-fit: cover;"
+                             onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Photo'">
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge {% if fav.listing.transaction_type == 'louer' %}bg-success{% else %}bg-warning{% endif %} rounded-pill px-3 py-2">
+                                {% if fav.listing.transaction_type == 'louer' %}
+                                    <i class="fas fa-key me-1"></i> Location
+                                {% else %}
+                                    <i class="fas fa-handshake me-1"></i> Vente
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <form action="{{ url_for('add_favorite', listing_id=fav.listing.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger rounded-circle" style="width: 35px; height: 35px; padding: 0;">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% if fav.listing.property_type in ['studio_meuble', 'appartement_meuble', 'chambre_meublee'] %}
+                        <div class="position-absolute bottom-0 end-0 m-2">
+                            <span class="badge bg-info rounded-pill px-3 py-2">
+                                <i class="fas fa-couch me-1"></i> Meublé
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-3">
+                        <h6 class="card-title fw-bold mb-1">{{ fav.listing.title[:50] }}{% if fav.listing.title|length > 50 %}...{% endif %}</h6>
+                        <div class="mb-2">
+                            <span class="h4 text-primary fw-bold">{{ "{:,.0f}".format(fav.listing.price) }} FCFA</span>
+                            {% if fav.listing.transaction_type == 'louer' %}
+                                {% if fav.listing.price_type == 'day' %}
+                                    <small class="text-muted">/nuit</small>
+                                {% else %}
+                                    <small class="text-muted">/mois</small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small mb-2">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ fav.listing.neighborhood }}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('listing_detail', listing_id=fav.listing.id) }}" class="btn btn-outline-primary w-100 rounded-pill">
+                                <i class="fas fa-eye me-1"></i> Voir détails
+                            </a>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            <i class="far fa-clock me-1"></i> Ajouté le {{ fav.created_at.strftime('%d/%m/%Y') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Message quand aucun favori -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <div class="bg-light rounded-circle d-inline-flex p-4">
+                    <i class="far fa-heart fa-4x text-muted"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold mb-3">Aucun favori</h3>
+            <p class="text-muted mb-4">
+                Vous n'avez pas encore ajouté d'annonces à vos favoris.<br>
+                Cliquez sur le ❤️ sur une annonce pour la sauvegarder.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ url_for('listings') }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-search me-2"></i> Découvrir les annonces
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}

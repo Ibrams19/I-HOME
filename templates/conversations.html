@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Conversations - {{ listing.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <a href="{{ url_for('listing_detail', listing_id=listing.id) }}" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fas fa-arrow-left"></i> Retour à l'annonce
+            </a>
+            <h2 class="mb-0">
+                <i class="fas fa-comments"></i> Conversations
+            </h2>
+            <p class="text-muted">Annonce : {{ listing.title }}</p>
+        </div>
+        <a href="{{ url_for('my_conversations') }}" class="btn btn-outline-primary">
+            <i class="fas fa-list"></i> Toutes mes conversations
+        </a>
+    </div>
+    
+    {% if conversations %}
+        <div class="row">
+            {% for conv in conversations %}
+            {% set unread_count = 0 %}
+            {% for msg in conv.messages %}
+                {% if not msg.is_read and msg.sender_id != current_user.id %}
+                    {% set unread_count = unread_count + 1 %}
+                {% endif %}
+            {% endfor %}
+            <div class="col-12 mb-3">
+                <a href="{{ url_for('chat', conversation_id=conv.id) }}" class="text-decoration-none">
+                    <div class="card shadow-sm hover-card {% if unread_count > 0 %}border-primary border-2{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                        <div>
+                                            <h5 class="mb-0">
+                                                {{ conv.tenant.username }}
+                                                {% if conv.tenant.phone_number %}
+                                                    <small class="text-success">
+                                                        <i class="fab fa-whatsapp"></i> WhatsApp
+                                                    </small>
+                                                {% endif %}
+                                            </h5>
+                                            <small class="text-muted">Locataire</small>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if conv.last_message %}
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-comment-dots"></i> 
+                                            {{ conv.last_message[:80] }}{% if conv.last_message|length > 80 %}...{% endif %}
+                                        </p>
+                                    {% else %}
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-comment-dots"></i> Aucun message pour l'instant
+                                        </p>
+                                    {% endif %}
+                                    
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> 
+                                        Dernier message : {{ conv.last_message_date.strftime('%d/%m/%Y à %H:%M') }}
+                                    </small>
+                                </div>
+                                
+                                <div class="text-end">
+                                    {% if unread_count > 0 %}
+                                        <span class="badge bg-danger rounded-pill fs-6">
+                                            {{ unread_count }} nouveau(x)
+                                        </span>
+                                    {% endif %}
+                                    <div class="mt-2">
+                                        <i class="fas fa-chevron-right text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+            <h4>Aucune conversation</h4>
+            <p class="text-muted">Aucun locataire n'a encore contacté pour cette annonce.</p>
+            <a href="{{ url_for('listing_detail', listing_id=listing.id) }}" class="btn btn-primary">
+                <i class="fas fa-eye"></i> Voir l'annonce
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    }
+    .border-primary {
+        border-color: #0d6efd !important;
+    }
+</style>
+{% endblock %}

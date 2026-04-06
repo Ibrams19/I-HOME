@@ -1,23 +1,60 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
 import os
-from datetime import datetime
+import secrets
+import logging
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'supersecretkeylocapp2026')
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+
+# ==================== CONFIGURATION DES ANNONCES GRATUITES ====================
+TOTAL_FREE_LISTINGS_GLOBAL = 100  # 100 annonces gratuites pour toute la plateforme
+FREE_LISTINGS_USED_GLOBAL = 0  # Compteur global
+
+# ==================== CONFIGURATION CSRF ====================
+csrf = CSRFProtect()
+csrf.init_app(app)
+app.config['WTF_CSRF_ENABLED'] = False  # Désactivé pour simplifier les tests
+app.config['WTF_CSRF_SECRET_KEY'] = os.environ.get('CSRF_SECRET_KEY', secrets.token_hex(32))
+app.config['WTF_CSRF_TIME_LIMIT'] = 3600
+
+# ==================== CONFIGURATION LOGS ====================
+if not os.path.exists('logs'):
+    os.makedirs('logs')
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('logs/app.log', encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # ==================== CONFIGURATION BASE DE DONNÉES ====================
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-if app.config['SQLALCHEMY_DATABASE_URI'] and app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
-    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    logger.info("✅ Connexion à PostgreSQL (mode production)")
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+    logger.info("⚠️ Mode développement : utilisation de SQLite locale")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 Mo max
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -30,110 +67,459 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), nullable=True)
     password = db.Column(db.String(200), nullable=False)
+    reset_token = db.Column(db.String(100), nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
     is_owner = db.Column(db.Boolean, default=False)
+    is_broker = db.Column(db.Boolean, default=False)
+    agency_name = db.Column(db.String(100), nullable=True)
+    phone_number = db.Column(db.String(20), nullable=True)
+    free_listings_used = db.Column(db.Integer, default=0)
+    subscription_type = db.Column(db.String(20), default='free')
+    subscription_end = db.Column(db.DateTime, nullable=True)
+    rating = db.Column(db.Float, default=0)
+    total_ratings = db.Column(db.Integer, default=0)
+    privacy_accepted = db.Column(db.Boolean, default=False)
+    privacy_accepted_date = db.Column(db.DateTime, nullable=True)
+    cookies_consent = db.Column(db.String(20), nullable=True)
+
+    @property
+    def can_publish(self):
+        return self.is_owner or self.is_broker
 
 class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(150), nullable=False)
-    property_type = db.Column(db.String(50), nullable=False)      # studio, appartement, chambre
-    transaction_type = db.Column(db.String(20), nullable=False)   # louer, acheter
+    property_type = db.Column(db.String(50), nullable=False)
+    transaction_type = db.Column(db.String(20), nullable=False)
     neighborhood = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Integer, nullable=False)
+    price_type = db.Column(db.String(20), default='month')
     description = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(300), default='/static/default.jpg')
+    images = db.Column(db.Text, nullable=True)
     lat = db.Column(db.Float, default=14.6937)
     lng = db.Column(db.Float, default=-17.4441)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    views = db.Column(db.Integer, default=0)
+    is_paid = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=False)
+    is_taken = db.Column(db.Boolean, default=False)
+    taken_date = db.Column(db.DateTime, nullable=True)
+    is_free_global = db.Column(db.Boolean, default=False)
+    payment_id = db.Column(db.String(100), nullable=True)
+    payment_date = db.Column(db.DateTime, nullable=True)
+    payment_amount = db.Column(db.Integer, default=1000)
+    
+    auteur = db.relationship('User', backref='annonces', foreign_keys=[user_id])
+
+class Favorite(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='favorites')
+    listing = db.relationship('Listing', backref='favorited_by')
+
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reviewed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    reviewer = db.relationship('User', foreign_keys=[reviewer_id])
+    reviewed = db.relationship('User', foreign_keys=[reviewed_id])
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    link = db.Column(db.String(300), nullable=True)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='notifications')
+
+class Conversation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    tenant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    last_message = db.Column(db.Text, nullable=True)
+    last_message_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    listing = db.relationship('Listing', backref='conversations')
+    owner = db.relationship('User', foreign_keys=[owner_id], backref='owner_conversations')
+    tenant = db.relationship('User', foreign_keys=[tenant_id], backref='tenant_conversations')
+    messages = db.relationship('Message', backref='conversation', lazy=True, cascade='all, delete-orphan')
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversation.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    sender = db.relationship('User', foreign_keys=[sender_id])
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Création des tables
 with app.app_context():
     db.create_all()
 
-# ====================== ROUTES ======================
+# ====================== FONCTIONS ======================
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def create_wave_payment(amount, phone_number, listing_id):
+    try:
+        payment_id = f"WAVE_SIM_{listing_id}_{int(datetime.now().timestamp())}"
+        return {'success': True, 'payment_id': payment_id}
+    except Exception as e:
+        logger.error(f"Erreur paiement Wave: {e}")
+        return {'success': False, 'error': str(e)}
+
+def send_email_notification(to_email, subject, body_html):
+    """Envoie un email HTML"""
+    try:
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        smtp_user = os.environ.get('EMAIL_USER', '')
+        smtp_password = os.environ.get('EMAIL_PASSWORD', '')
+        
+        if not smtp_user or not smtp_password:
+            logger.warning("Email non configuré")
+            return False
+        
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body_html, 'html'))
+        
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        logger.error(f"Erreur email: {e}")
+        return False
+
+# ====================== ROUTES PRINCIPALES ======================
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    recent_annonces = Listing.query.filter_by(is_active=True, is_taken=False).order_by(Listing.date_posted.desc()).limit(6).all()
+    logger.info(f"Page d'accueil chargée - IP: {request.remote_addr}")
+    return render_template('index.html', recent_annonces=recent_annonces)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = generate_password_hash(request.form['password'])
-        is_owner = 'is_owner' in request.form
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        user_type = request.form.get('user_type', 'tenant')
+        
+        if not username or not password:
+            flash("Veuillez remplir tous les champs obligatoires.", "danger")
+            logger.warning(f"Tentative d'inscription avec champs vides - IP: {request.remote_addr}")
+            return redirect(url_for('register'))
+        
+        if email == '':
+            email = None
+        
+        is_owner = (user_type == 'owner')
+        is_broker = (user_type == 'broker')
+        agency_name = request.form.get('agency_name', '') if is_broker else None
 
         if User.query.filter_by(username=username).first():
             flash("Ce nom d'utilisateur existe déjà.", "danger")
-        else:
-            new_user = User(username=username, password=password, is_owner=is_owner)
-            db.session.add(new_user)
-            db.session.commit()
-            flash("Compte créé avec succès !", "success")
-            return redirect(url_for('login'))
+            return redirect(url_for('register'))
+        
+        if email and User.query.filter_by(email=email).first():
+            flash("Cet email est déjà utilisé.", "danger")
+            return redirect(url_for('register'))
+        
+        new_user = User(
+            username=username,
+            email=email,
+            password=generate_password_hash(password),
+            is_owner=is_owner,
+            is_broker=is_broker,
+            agency_name=agency_name
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        
+        logger.info(f"Nouvel utilisateur inscrit: {username} ({user_type}) - IP: {request.remote_addr}")
+        flash("Compte créé avec succès ! Veuillez compléter votre profil.", "success")
+        
+        login_user(new_user)
+        session['can_publish'] = new_user.can_publish
+        session['is_broker'] = new_user.is_broker
+        session['is_owner'] = new_user.is_owner
+        
+        return redirect(url_for('profile'))
+    
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        
+        if not username or not password:
+            flash("Veuillez entrer votre nom d'utilisateur et votre mot de passe.", "danger")
+            logger.warning(f"Tentative de connexion avec champs vides - IP: {request.remote_addr}")
+            return redirect(url_for('login'))
+        
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
+        
+        if not user:
+            flash("Ce nom d'utilisateur n'existe pas.", "danger")
+            logger.warning(f"Tentative de connexion avec username inexistant: {username} - IP: {request.remote_addr}")
+            return redirect(url_for('login'))
+        
+        if check_password_hash(user.password, password):
             login_user(user)
+            session['can_publish'] = user.can_publish
+            session['is_broker'] = user.is_broker
             session['is_owner'] = user.is_owner
-            flash("Connexion réussie !", "success")
-            return redirect(url_for('listings'))
-        flash("Identifiants incorrects.", "danger")
+            logger.info(f"Connexion réussie: {username} - IP: {request.remote_addr}")
+            flash(f"Bienvenue {user.username} !", "success")
+            
+            if user.can_publish and (not user.phone_number or not user.email):
+                flash("Veuillez compléter votre profil avec votre email et numéro WhatsApp.", "warning")
+                return redirect(url_for('profile'))
+            
+            return redirect(url_for('index'))
+        else:
+            flash("Mot de passe incorrect.", "danger")
+            logger.warning(f"Mot de passe incorrect pour: {username} - IP: {request.remote_addr}")
+            return redirect(url_for('login'))
+    
     return render_template('login.html')
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            token = secrets.token_urlsafe(32)
+            user.reset_token = token
+            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=24)
+            db.session.commit()
+            
+            reset_link = url_for('reset_password', token=token, _external=True)
+            logger.info(f"Lien de réinitialisation pour {email}: {reset_link}")
+            
+            flash("Un email de réinitialisation a été envoyé (simulation).", "success")
+            flash(f"Lien de test : {reset_link}", "info")
+        else:
+            flash("Aucun compte associé à cet email.", "danger")
+        
+        return redirect(url_for('login'))
+    
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    user = User.query.filter_by(reset_token=token).first()
+    
+    if not user or user.reset_token_expiry < datetime.utcnow():
+        flash("Le lien de réinitialisation est invalide ou a expiré.", "danger")
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        if not password:
+            flash("Veuillez entrer un mot de passe.", "danger")
+        elif password != confirm_password:
+            flash("Les mots de passe ne correspondent pas.", "danger")
+        elif len(password) < 6:
+            flash("Le mot de passe doit contenir au moins 6 caractères.", "danger")
+        else:
+            user.password = generate_password_hash(password)
+            user.reset_token = None
+            user.reset_token_expiry = None
+            db.session.commit()
+            logger.info(f"Mot de passe réinitialisé pour {user.username}")
+            flash("Votre mot de passe a été réinitialisé avec succès.", "success")
+            return redirect(url_for('login'))
+    
+    return render_template('reset_password.html', token=token)
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if not current_user.can_publish:
+        flash("Les locataires n'ont pas besoin de profil.", "info")
+        return redirect(url_for('listings'))
+    
+    profil_complet = current_user.phone_number and current_user.email
+    
+    if request.method == 'POST':
+        phone_number = request.form.get('phone_number', '').strip()
+        email = request.form.get('email', '').strip()
+        
+        if not phone_number:
+            flash("Le numéro WhatsApp est obligatoire pour publier des annonces.", "danger")
+            return redirect(url_for('profile'))
+        
+        if not email:
+            flash("L'adresse email est obligatoire pour publier des annonces.", "danger")
+            return redirect(url_for('profile'))
+        
+        current_user.phone_number = phone_number
+        current_user.email = email
+        
+        if current_user.is_broker:
+            agency_name = request.form.get('agency_name', '').strip()
+            current_user.agency_name = agency_name
+        
+        db.session.commit()
+        
+        logger.info(f"Profil mis à jour: {current_user.username} - IP: {request.remote_addr}")
+        flash("Profil mis à jour avec succès ! Vous pouvez maintenant publier des annonces.", "success")
+        
+        return redirect(url_for('publish'))
+    
+    return render_template('profile.html', user=current_user, profil_complet=profil_complet)
+
+@app.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+    
+    if not check_password_hash(current_user.password, current_password):
+        flash("Mot de passe actuel incorrect.", "danger")
+        logger.warning(f"Tentative changement mot de passe avec ancien mdp incorrect: {current_user.username} - IP: {request.remote_addr}")
+        return redirect(url_for('profile'))
+    
+    if not new_password:
+        flash("Veuillez entrer un nouveau mot de passe.", "danger")
+        return redirect(url_for('profile'))
+    
+    if new_password != confirm_password:
+        flash("Les nouveaux mots de passe ne correspondent pas.", "danger")
+        return redirect(url_for('profile'))
+    
+    if len(new_password) < 6:
+        flash("Le mot de passe doit contenir au moins 6 caractères.", "danger")
+        return redirect(url_for('profile'))
+    
+    current_user.password = generate_password_hash(new_password)
+    db.session.commit()
+    
+    logger.info(f"Mot de passe changé: {current_user.username} - IP: {request.remote_addr}")
+    flash("✅ Votre mot de passe a été modifié avec succès.", "success")
+    return redirect(url_for('profile'))
 
 @app.route('/logout')
 @login_required
 def logout():
+    logger.info(f"Déconnexion: {current_user.username} - IP: {request.remote_addr}")
     logout_user()
-    flash("Déconnexion réussie.", "info")
+    session.clear()
+    flash("Déconnexion réussie. À bientôt !", "info")
     return redirect(url_for('index'))
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 @app.route('/publish', methods=['GET', 'POST'])
 @login_required
 def publish():
-    if not session.get('is_owner'):
-        flash("Seuls les propriétaires peuvent publier une annonce.", "danger")
+    global FREE_LISTINGS_USED_GLOBAL
+    
+    if not current_user.can_publish:
+        flash("Seuls les propriétaires et courtiers peuvent publier des annonces.", "danger")
         return redirect(url_for('listings'))
+    
+    if not current_user.phone_number or not current_user.email:
+        flash("Veuillez d'abord compléter votre profil avec votre email et votre numéro WhatsApp.", "warning")
+        return redirect(url_for('profile', next='publish'))
 
     if request.method == 'POST':
-        title = request.form['title']
-        property_type = request.form['property_type']
-        transaction_type = request.form['transaction_type']
-        neighborhood = request.form['neighborhood']
-        price = int(request.form['price'])
-        description = request.form['description']
-        lat = float(request.form.get('lat', 14.6937))
-        lng = float(request.form.get('lng', -17.4441))
+        title = request.form.get('title', '').strip()
+        property_type = request.form.get('property_type')
+        transaction_type = request.form.get('transaction_type')
+        neighborhood = request.form.get('neighborhood', '').strip()
+        price = int(request.form.get('price', 0))
+        price_type = request.form.get('price_type', 'month')
+        description = request.form.get('description', '').strip()
+        
+        lat_str = request.form.get('lat', '')
+        lat = float(lat_str) if lat_str and lat_str.strip() else 14.6937
+        lng_str = request.form.get('lng', '')
+        lng = float(lng_str) if lng_str and lng_str.strip() else -17.4441
 
         image_url = '/static/default.jpg'
-        if 'image' in request.files:
-            file = request.files['image']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                try:
-                    img = Image.open(filepath)
-                    img.thumbnail((800, 600))
-                    img.save(filepath)
-                except:
-                    pass
-                image_url = f'/uploads/{filename}'
+        images_list = []
+        
+        if 'images' in request.files:
+            files = request.files.getlist('images')
+            for file in files:
+                if file and file.filename and allowed_file(file.filename):
+                    try:
+                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+                        filename = f"{timestamp}_{secure_filename(file.filename)}"
+                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                        file.save(filepath)
+                        try:
+                            img = Image.open(filepath)
+                            img.thumbnail((800, 600))
+                            img.save(filepath)
+                        except:
+                            pass
+                        img_url = f'/uploads/{filename}'
+                        images_list.append(img_url)
+                        if image_url == '/static/default.jpg':
+                            image_url = img_url
+                    except Exception as e:
+                        logger.error(f"Erreur upload image: {e}")
+                        flash("Erreur lors de l'upload de l'image.", "danger")
+        
+        images_str = ','.join(images_list) if images_list else None
 
+        user = User.query.get(current_user.id)
+        
+        # Compter les annonces gratuites globales
+        total_free_listings_global = Listing.query.filter_by(is_free_global=True).count()
+        annonces_gratuites_restantes_global = TOTAL_FREE_LISTINGS_GLOBAL - total_free_listings_global
+        
+        # Vérifier si l'utilisateur a un abonnement actif
+        has_active_subscription = False
+        if user.subscription_type != 'free' and user.subscription_end:
+            if user.subscription_end > datetime.utcnow():
+                has_active_subscription = True
+        
+        # Décider si l'annonce est gratuite ou payante
+        if has_active_subscription:
+            plans_limit = {'basic': 20, 'premium': 50, 'pro': float('inf'), 'annual': 200}
+            limit = plans_limit.get(user.subscription_type, 0)
+            is_free = user.free_listings_used < limit
+        else:
+            is_free = annonces_gratuites_restantes_global > 0
+        
         new_listing = Listing(
             user_id=current_user.id,
             title=title,
@@ -141,28 +527,228 @@ def publish():
             transaction_type=transaction_type,
             neighborhood=neighborhood,
             price=price,
+            price_type=price_type,
             description=description,
             image_url=image_url,
+            images=images_str,
             lat=lat,
-            lng=lng
+            lng=lng,
+            is_paid=is_free,
+            is_active=is_free,
+            is_free_global=is_free and not has_active_subscription
         )
         db.session.add(new_listing)
         db.session.commit()
-
-        flash("Annonce publiée avec succès !", "success")
-        return redirect(url_for('listings'))
+        
+        if is_free:
+            if has_active_subscription:
+                user.free_listings_used += 1
+                db.session.commit()
+                flash(f"✅ Annonce publiée ! Il vous reste {limit - user.free_listings_used} annonces dans votre abonnement.", "success")
+            else:
+                FREE_LISTINGS_USED_GLOBAL += 1
+                flash(f"✅ Annonce publiée gratuitement ! Plus que {annonces_gratuites_restantes_global - 1} annonces gratuites sur la plateforme.", "success")
+            logger.info(f"Nouvelle annonce publiée: {title} par {current_user.username}")
+            return redirect(url_for('listing_detail', listing_id=new_listing.id))
+        else:
+            flash("📢 Les 100 annonces gratuites de lancement ont toutes été utilisées. Souscrivez un abonnement pour continuer à publier.", "warning")
+            return redirect(url_for('subscription'))
 
     return render_template('publish.html')
 
+@app.route('/payment/<int:listing_id>', methods=['GET', 'POST'])
+@login_required
+def payment_page(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    
+    if annonce.user_id != current_user.id:
+        flash("Vous n'êtes pas autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    if annonce.is_paid and annonce.is_active:
+        flash("Cette annonce est déjà en ligne.", "info")
+        return redirect(url_for('listing_detail', listing_id=annonce.id))
+    
+    if request.method == 'POST':
+        phone_number = request.form.get('phone_number')
+        if not phone_number:
+            flash("Veuillez entrer votre numéro Wave.", "danger")
+            return redirect(url_for('payment_page', listing_id=listing_id))
+        
+        result = create_wave_payment(1000, phone_number, listing_id)
+        if result['success']:
+            annonce.payment_id = result['payment_id']
+            db.session.commit()
+            return redirect(url_for('payment_pending', listing_id=listing_id, payment_id=result['payment_id']))
+        else:
+            flash("Erreur lors du paiement.", "danger")
+    
+    return render_template('payment.html', annonce=annonce, amount=1000)
+
+@app.route('/payment/pending/<int:listing_id>/<payment_id>')
+def payment_pending(listing_id, payment_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    return render_template('payment_pending.html', annonce=annonce, payment_id=payment_id)
+
+@app.route('/payment/simulate/<int:listing_id>')
+@login_required
+def simulate_payment(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    if annonce.user_id != current_user.id:
+        flash("Non autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    annonce.is_paid = True
+    annonce.is_active = True
+    annonce.payment_date = datetime.utcnow()
+    db.session.commit()
+    flash("✅ (SIMULATION) Paiement confirmé ! Votre annonce est en ligne.", "success")
+    return redirect(url_for('listing_detail', listing_id=annonce.id))
+
+@app.route('/payment/check/<int:listing_id>')
+def payment_check(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    return jsonify({'status': 'completed' if annonce.is_paid and annonce.is_active else 'pending'})
+
+@app.route('/my-listings')
+@login_required
+def my_listings():
+    if not current_user.can_publish:
+        flash("Accès réservé aux propriétaires et courtiers.", "danger")
+        return redirect(url_for('index'))
+    
+    annonces = Listing.query.filter_by(user_id=current_user.id).order_by(Listing.date_posted.desc()).all()
+    user = User.query.get(current_user.id)
+    
+    total_annonces = len(annonces)
+    now = datetime.utcnow()
+    
+    # Compter les annonces gratuites globales
+    total_free_listings_global = Listing.query.filter_by(is_free_global=True).count()
+    annonces_gratuites_restantes_global = max(0, TOTAL_FREE_LISTINGS_GLOBAL - total_free_listings_global)
+    
+    abonnement_expire = False
+    if user.subscription_type != 'free' and user.subscription_end:
+        if user.subscription_end < now:
+            abonnement_expire = True
+    
+    if user.subscription_type != 'free' and user.subscription_end and user.subscription_end > now:
+        plans_limit = {'basic': 20, 'premium': 50, 'pro': float('inf'), 'annual': 200}
+        annonces_gratuites_restantes = max(0, plans_limit.get(user.subscription_type, 0) - user.free_listings_used)
+        if annonces_gratuites_restantes == float('inf'):
+            annonces_gratuites_restantes = "Illimité"
+    else:
+        annonces_gratuites_restantes = max(0, 100 - total_annonces)
+    
+    a_epuise_annonces = False
+    if user.subscription_type == 'free' and total_annonces >= 100:
+        a_epuise_annonces = True
+    elif user.subscription_type != 'free' and user.subscription_end and user.subscription_end > now:
+        if isinstance(annonces_gratuites_restantes, int) and annonces_gratuites_restantes <= 0:
+            a_epuise_annonces = True
+    
+    return render_template('my_listings.html', 
+                          annonces=annonces, 
+                          user=user, 
+                          annonces_gratuites_restantes=annonces_gratuites_restantes,
+                          annonces_gratuites_restantes_global=annonces_gratuites_restantes_global,
+                          total_annonces=total_annonces,
+                          abonnement_expire=abonnement_expire,
+                          a_epuise_annonces=a_epuise_annonces,
+                          now=now)
+
+@app.route('/subscription')
+@login_required
+def subscription():
+    if not current_user.can_publish:
+        flash("Accès réservé aux propriétaires et courtiers.", "danger")
+        return redirect(url_for('index'))
+    
+    # Compter les annonces gratuites globales
+    total_free_listings_global = Listing.query.filter_by(is_free_global=True).count()
+    annonces_gratuites_restantes_global = max(0, TOTAL_FREE_LISTINGS_GLOBAL - total_free_listings_global)
+    
+    # Vérifier si les 100 annonces gratuites sont épuisées
+    free_listings_epuisees = (annonces_gratuites_restantes_global <= 0)
+    
+    return render_template('subscription.html', 
+                          user=current_user, 
+                          annonces_gratuites_restantes_global=annonces_gratuites_restantes_global,
+                          free_listings_epuisees=free_listings_epuisees)
+
+@app.route('/subscribe/<plan>', methods=['POST'])
+@login_required
+def subscribe(plan):
+    if not current_user.can_publish:
+        return jsonify({'error': 'Non autorisé'}), 403
+    
+    # Vérifier si les 100 annonces gratuites sont épuisées
+    total_free_listings_global = Listing.query.filter_by(is_free_global=True).count()
+    annonces_gratuites_restantes_global = max(0, TOTAL_FREE_LISTINGS_GLOBAL - total_free_listings_global)
+    
+    # Bloquer l'abonnement si les annonces gratuites ne sont pas épuisées
+    if annonces_gratuites_restantes_global > 0:
+        flash("❌ Les abonnements ne sont pas encore disponibles ! Profitez d'abord des 100 annonces gratuites.", "danger")
+        return redirect(url_for('subscription'))
+    
+    plans = {
+        'free': {'price': 0, 'duration_days': 0, 'free_listings': 100, 'type': 'one_time'},
+        'basic': {'price': 5000, 'duration_days': 30, 'free_listings': 20, 'type': 'monthly'},
+        'premium': {'price': 10000, 'duration_days': 30, 'free_listings': 50, 'type': 'monthly'},
+        'pro': {'price': 25000, 'duration_days': 30, 'free_listings': float('inf'), 'type': 'monthly'},
+        'annual': {'price': 100000, 'duration_days': 365, 'free_listings': 200, 'type': 'yearly'}
+    }
+    
+    if plan not in plans:
+        flash("Plan invalide.", "danger")
+        return redirect(url_for('subscription'))
+    
+    plan_info = plans[plan]
+    ancien_abonnement = current_user.subscription_type
+    
+    if plan == 'free':
+        current_user.subscription_type = 'free'
+        current_user.subscription_end = None
+        current_user.free_listings_used = 0
+        flash("✅ Vous êtes maintenant en mode gratuit.", "success")
+    else:
+        nouvelle_date_fin = datetime.utcnow() + timedelta(days=plan_info['duration_days'])
+        current_user.subscription_type = plan
+        current_user.subscription_end = nouvelle_date_fin
+        current_user.free_listings_used = 0
+        flash(f"✅ Abonnement {plan} activé avec succès !", "success")
+        flash(f"📅 Valable jusqu'au {nouvelle_date_fin.strftime('%d/%m/%Y')}", "info")
+    
+    logger.info(f"Abonnement changé: {current_user.username} - {ancien_abonnement} -> {plan}")
+    db.session.commit()
+    return redirect(url_for('my_listings'))
+    
+    logger.info(f"Abonnement changé: {current_user.username} - {ancien_abonnement} -> {plan} - IP: {request.remote_addr}")
+    db.session.commit()
+    return redirect(url_for('my_listings'))
+
+@app.route('/cancel-subscription')
+@login_required
+def cancel_subscription():
+    current_user.subscription_type = 'free'
+    current_user.subscription_end = None
+    db.session.commit()
+    logger.info(f"Abonnement annulé: {current_user.username} - IP: {request.remote_addr}")
+    flash("Votre abonnement a été annulé.", "info")
+    return redirect(url_for('my_listings'))
+
 @app.route('/listings')
 def listings():
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
+    
     property_type = request.args.get('type')
     transaction_type = request.args.get('transaction')
     neighborhood = request.args.get('neighborhood', '').strip()
     min_price = request.args.get('min_price', type=int)
     max_price = request.args.get('max_price', type=int)
 
-    query = Listing.query
+    query = Listing.query.filter_by(is_active=True, is_taken=False)
 
     if property_type:
         query = query.filter_by(property_type=property_type)
@@ -175,19 +761,452 @@ def listings():
     if max_price is not None:
         query = query.filter(Listing.price <= max_price)
 
-    annonces = query.order_by(Listing.date_posted.desc()).all()
+    all_listings = query.all()
+    
+    def get_priority(listing):
+        user = listing.auteur
+        if user.subscription_type == 'pro':
+            return 0
+        elif user.subscription_type == 'premium':
+            return 1
+        elif user.subscription_type == 'annual':
+            return 1
+        elif user.subscription_type == 'basic':
+            return 2
+        else:
+            return 3
+    
+    sorted_listings = sorted(all_listings, key=get_priority)
+    
+    total = len(sorted_listings)
+    start = (page - 1) * per_page
+    end = start + per_page
+    annonces = sorted_listings[start:end]
+    
+    pagination = {
+        'page': page,
+        'per_page': per_page,
+        'total': total,
+        'pages': (total + per_page - 1) // per_page,
+        'has_prev': page > 1,
+        'has_next': end < total,
+        'prev_num': page - 1 if page > 1 else None,
+        'next_num': page + 1 if end < total else None,
+        'iter_pages': lambda: range(1, ((total + per_page - 1) // per_page) + 1)
+    }
+    
+    return render_template('listings.html', annonces=annonces, pagination=pagination)
 
-    return render_template('listings.html', annonces=annonces)
+@app.route('/listings/type/<type>')
+def listings_by_type(type):
+    if type == 'appartement':
+        property_types = ['appartement']
+        title = "Appartements"
+        icon = "fa-building"
+    elif type == 'appartement_meuble':
+        property_types = ['appartement_meuble']
+        title = "Appartements meublés"
+        icon = "fa-building"
+    elif type == 'chambre':
+        property_types = ['chambre']
+        title = "Chambres simples"
+        icon = "fa-bed"
+    elif type == 'chambre_meublee':
+        property_types = ['chambre_meublee']
+        title = "Chambres meublées"
+        icon = "fa-bed"
+    elif type == 'studio':
+        property_types = ['studio']
+        title = "Studios"
+        icon = "fa-city"
+    elif type == 'studio_meuble':
+        property_types = ['studio_meuble']
+        title = "Studios meublés"
+        icon = "fa-city"
+    elif type == 'magasin':
+        property_types = ['magasin']
+        title = "Magasins"
+        icon = "fa-store"
+    elif type == 'depot':
+        property_types = ['depot']
+        title = "Dépôts / Entrepôts"
+        icon = "fa-warehouse"
+    else:
+        return redirect(url_for('listings'))
+    
+    query = Listing.query.filter_by(is_active=True, is_taken=False)
+    query = query.filter(Listing.property_type.in_(property_types))
+    annonces = query.order_by(Listing.date_posted.desc()).all()
+    
+    return render_template('listings_by_type.html', annonces=annonces, title=title, icon=icon, type=type)
 
 @app.route('/listing/<int:listing_id>')
+@login_required
 def listing_detail(listing_id):
     annonce = Listing.query.get_or_404(listing_id)
+    annonce.views += 1
+    db.session.commit()
+    logger.info(f"Annonce consultée: {annonce.title} (ID: {listing_id}) - IP: {request.remote_addr}")
     return render_template('detail.html', annonce=annonce)
 
-# Servir les images uploadées
+@app.route('/favorite/<int:listing_id>', methods=['POST'])
+@login_required
+def add_favorite(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    
+    existing = Favorite.query.filter_by(user_id=current_user.id, listing_id=listing_id).first()
+    if existing:
+        db.session.delete(existing)
+        flash("Annonce retirée des favoris.", "info")
+    else:
+        favorite = Favorite(user_id=current_user.id, listing_id=listing_id)
+        db.session.add(favorite)
+        flash("Annonce ajoutée aux favoris.", "success")
+    
+    db.session.commit()
+    return redirect(request.referrer or url_for('listings'))
+
+@app.route('/favorites')
+@login_required
+def favorites():
+    favorites = Favorite.query.filter_by(user_id=current_user.id).order_by(Favorite.created_at.desc()).all()
+    return render_template('favorites.html', favorites=favorites)
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/cgu')
+def cgu():
+    now = datetime.utcnow()
+    return render_template('cgu.html', now=now)
+
+@app.route('/mentions-legales')
+def mentions_legales():
+    return render_template('mentions_legales.html')
+
+@app.route('/politique-confidentialite')
+def politique_confidentialite():
+    return render_template('politique_confidentialite.html')
+
+@app.route('/cookies-consent', methods=['POST'])
+def cookies_consent():
+    data = request.get_json()
+    consent = data.get('consent')
+    if current_user.is_authenticated:
+        current_user.cookies_consent = consent
+        db.session.commit()
+    return jsonify({'status': 'ok'})
+
+@app.route('/privacy-consent', methods=['POST'])
+def privacy_consent():
+    if current_user.is_authenticated:
+        current_user.privacy_accepted = True
+        current_user.privacy_accepted_date = datetime.utcnow()
+        db.session.commit()
+    return jsonify({'status': 'ok'})
+
+# ====================== MESSAGERIE ======================
+
+@app.route('/start-conversation/<int:listing_id>')
+@login_required
+def start_conversation(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    
+    if current_user.can_publish and listing.user_id == current_user.id:
+        conversations = Conversation.query.filter_by(listing_id=listing_id, owner_id=current_user.id).order_by(Conversation.last_message_date.desc()).all()
+        return render_template('conversations.html', conversations=conversations, listing=listing)
+    else:
+        conversation = Conversation.query.filter_by(listing_id=listing_id, tenant_id=current_user.id).first()
+        if not conversation:
+            conversation = Conversation(
+                listing_id=listing_id,
+                owner_id=listing.user_id,
+                tenant_id=current_user.id
+            )
+            db.session.add(conversation)
+            db.session.commit()
+        return redirect(url_for('chat', conversation_id=conversation.id))
+
+@app.route('/chat/<int:conversation_id>')
+@login_required
+def chat(conversation_id):
+    conversation = Conversation.query.get_or_404(conversation_id)
+    
+    if current_user.id not in [conversation.owner_id, conversation.tenant_id]:
+        flash("Non autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    for msg in conversation.messages:
+        if msg.sender_id != current_user.id and not msg.is_read:
+            msg.is_read = True
+    db.session.commit()
+    
+    return render_template('chat.html', conversation=conversation, listing=conversation.listing)
+
+@app.route('/send_message/<int:conversation_id>', methods=['POST'])
+@login_required
+def send_message(conversation_id):
+    conversation = Conversation.query.get_or_404(conversation_id)
+    
+    if current_user.id not in [conversation.owner_id, conversation.tenant_id]:
+        flash("Non autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    content = request.form.get('content', '').strip()
+    if not content:
+        flash("Message vide.", "danger")
+        return redirect(url_for('chat', conversation_id=conversation_id))
+    
+    message = Message(
+        conversation_id=conversation_id,
+        sender_id=current_user.id,
+        content=content
+    )
+    conversation.last_message = content[:100]
+    conversation.last_message_date = datetime.utcnow()
+    
+    db.session.add(message)
+    db.session.commit()
+    
+    # Envoyer une notification par email au destinataire
+    if conversation.owner_id == current_user.id:
+        destinataire = conversation.tenant
+    else:
+        destinataire = conversation.owner
+    
+    if destinataire.email:
+        subject = f"📬 Nouveau message sur I-HOME - {conversation.listing.title}"
+        body = f"""
+        <h2>Nouveau message sur I-HOME</h2>
+        <p><strong>De :</strong> {current_user.username}</p>
+        <p><strong>Annonce :</strong> {conversation.listing.title}</p>
+        <p><strong>Message :</strong></p>
+        <p style="background: #f0f0f0; padding: 15px; border-radius: 10px;">{content}</p>
+        <p><a href="{url_for('chat', conversation_id=conversation.id, _external=True)}" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 50px;">Répondre maintenant</a></p>
+        <hr>
+        <p style="font-size: 12px; color: gray;">I-HOME - Plateforme immobilière du Sénégal</p>
+        """
+        send_email_notification(destinataire.email, subject, body)
+    
+    return redirect(url_for('chat', conversation_id=conversation_id))
+
+@app.route('/my-conversations')
+@login_required
+def my_conversations():
+    if current_user.can_publish:
+        conversations = Conversation.query.filter_by(owner_id=current_user.id).order_by(Conversation.last_message_date.desc()).all()
+    else:
+        conversations = Conversation.query.filter_by(tenant_id=current_user.id).order_by(Conversation.last_message_date.desc()).all()
+    
+    return render_template('my_conversations.html', conversations=conversations)
+
+@app.route('/get_messages/<int:conversation_id>')
+@login_required
+def get_messages(conversation_id):
+    conversation = Conversation.query.get_or_404(conversation_id)
+    
+    if current_user.id not in [conversation.owner_id, conversation.tenant_id]:
+        return jsonify({'error': 'Non autorisé'}), 403
+    
+    messages = []
+    for msg in conversation.messages:
+        messages.append({
+            'id': msg.id,
+            'sender_id': msg.sender_id,
+            'sender_name': msg.sender.username,
+            'content': msg.content,
+            'created_at': msg.created_at.strftime('%H:%M'),
+            'is_mine': msg.sender_id == current_user.id
+        })
+    
+    return jsonify(messages)
+
+@app.route('/api/unread-count')
+@login_required
+def unread_count():
+    if current_user.can_publish:
+        conversations = Conversation.query.filter_by(owner_id=current_user.id).all()
+    else:
+        conversations = Conversation.query.filter_by(tenant_id=current_user.id).all()
+    
+    unread_count = 0
+    for conv in conversations:
+        for msg in conv.messages:
+            if not msg.is_read and msg.sender_id != current_user.id:
+                unread_count += 1
+    
+    return jsonify({'count': unread_count})
+
+@app.route('/api/recent-messages')
+@login_required
+def recent_messages():
+    if current_user.can_publish:
+        conversations = Conversation.query.filter_by(owner_id=current_user.id).order_by(Conversation.last_message_date.desc()).limit(5).all()
+    else:
+        conversations = Conversation.query.filter_by(tenant_id=current_user.id).order_by(Conversation.last_message_date.desc()).limit(5).all()
+    
+    messages = []
+    for conv in conversations:
+        last_msg = conv.messages[-1] if conv.messages else None
+        if last_msg:
+            is_unread = not last_msg.is_read and last_msg.sender_id != current_user.id
+            messages.append({
+                'conversation_id': conv.id,
+                'listing_title': conv.listing.title,
+                'sender_name': last_msg.sender.username,
+                'content': last_msg.content[:100],
+                'time': last_msg.created_at.strftime('%d/%m %H:%M'),
+                'unread': is_unread
+            })
+    
+    return jsonify({'messages': messages})
+
+@app.route('/send-email-to-user/<int:user_id>/<int:listing_id>', methods=['POST'])
+@login_required
+def send_email_to_user(user_id, listing_id):
+    destinataire = User.query.get_or_404(user_id)
+    annonce = Listing.query.get_or_404(listing_id)
+    
+    subject = request.form.get('subject', '')
+    message = request.form.get('message', '')
+    
+    if not subject or not message:
+        flash("Veuillez remplir tous les champs.", "danger")
+        return redirect(url_for('listing_detail', listing_id=listing_id))
+    
+    if destinataire.email:
+        body_destinataire = f"""
+        <html>
+        <head><style>body{{font-family:Arial,sans-serif;}}.container{{max-width:600px;margin:0 auto;padding:20px;}}.header{{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:white;padding:20px;text-align:center;border-radius:10px 10px 0 0;}}.content{{padding:20px;background:#f9fafb;}}.footer{{text-align:center;padding:15px;font-size:12px;color:gray;}}.button{{background:#2563eb;color:white;padding:10px 20px;text-decoration:none;border-radius:50px;}}.info{{background:#e0e7ff;padding:10px;border-radius:10px;margin:15px 0;}}</style></head>
+        <body>
+            <div class="container">
+                <div class="header"><h2>📬 Nouveau message I-HOME</h2></div>
+                <div class="content">
+                    <p><strong>👤 De :</strong> {current_user.username}</p>
+                    <p><strong>🏠 Annonce :</strong> <a href="{url_for('listing_detail', listing_id=annonce.id, _external=True)}">{annonce.title}</a></p>
+                    <p><strong>📝 Objet :</strong> {subject}</p>
+                    <div class="info"><strong>💬 Message :</strong><br>{message.replace(chr(10), '<br>')}</div>
+                    <p><a href="{url_for('start_conversation', listing_id=annonce.id, _external=True)}" class="button">📱 Répondre sur I-HOME</a></p>
+                </div>
+                <div class="footer"><p>I-HOME - Plateforme immobilière du Sénégal</p></div>
+            </div>
+        </body>
+        </html>
+        """
+        send_email_notification(destinataire.email, subject, body_destinataire)
+    
+    if current_user.email:
+        body_expediteur = f"""
+        <html>
+        <head><style>body{{font-family:Arial,sans-serif;}}.container{{max-width:600px;margin:0 auto;padding:20px;}}.header{{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:white;padding:20px;text-align:center;border-radius:10px 10px 0 0;}}.content{{padding:20px;background:#f9fafb;}}.footer{{text-align:center;padding:15px;font-size:12px;color:gray;}}</style></head>
+        <body>
+            <div class="container">
+                <div class="header"><h2>✅ Copie de votre message</h2></div>
+                <div class="content">
+                    <p><strong>👤 Destinataire :</strong> {destinataire.username}</p>
+                    <p><strong>🏠 Annonce :</strong> {annonce.title}</p>
+                    <p><strong>📝 Objet :</strong> {subject}</p>
+                    <div style="background:#f0f0f0;padding:15px;border-radius:10px;">{message.replace(chr(10), '<br>')}</div>
+                </div>
+                <div class="footer"><p>I-HOME - Plateforme immobilière du Sénégal</p></div>
+            </div>
+        </body>
+        </html>
+        """
+        send_email_notification(current_user.email, f"Copie : {subject}", body_expediteur)
+    
+    flash("✅ Votre message a été envoyé avec succès !", "success")
+    return redirect(url_for('listing_detail', listing_id=listing_id))
+
+# ====================== ROUTES ANNONCES PRISES ======================
+
+@app.route('/mark-as-taken/<int:listing_id>', methods=['POST'])
+@login_required
+def mark_as_taken(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    
+    if listing.user_id != current_user.id:
+        flash("Vous n'êtes pas autorisé à modifier cette annonce.", "danger")
+        return redirect(url_for('listings'))
+    
+    if listing.is_taken:
+        flash("Cette annonce est déjà marquée comme prise.", "warning")
+        return redirect(url_for('my_listings'))
+    
+    listing.is_taken = True
+    listing.is_active = False
+    listing.taken_date = datetime.utcnow()
+    db.session.commit()
+    
+    flash(f"✅ L'annonce '{listing.title}' a été marquée comme prise. Elle n'apparaît plus dans les recherches.", "success")
+    return redirect(url_for('my_listings'))
+
+@app.route('/reactivate-listing/<int:listing_id>', methods=['POST'])
+@login_required
+def reactivate_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    
+    if listing.user_id != current_user.id:
+        flash("Vous n'êtes pas autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    listing.is_taken = False
+    listing.is_active = True
+    listing.taken_date = None
+    db.session.commit()
+    
+    flash(f"✅ L'annonce '{listing.title}' a été réactivée.", "success")
+    return redirect(url_for('my_listings'))
+
+# ====================== GESTION DES ERREURS ======================
+
+@app.errorhandler(404)
+def page_not_found(e):
+    logger.warning(f"404 erreur : {request.url} - IP: {request.remote_addr}")
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    logger.error(f"500 erreur : {request.url} - {str(e)} - IP: {request.remote_addr}")
+    return render_template('500.html'), 500
+
+@app.errorhandler(403)
+def forbidden(e):
+    logger.warning(f"403 erreur (CSRF probable) : {request.url} - IP: {request.remote_addr}")
+    flash("Erreur de sécurité. Veuillez réessayer.", "danger")
+    return redirect(url_for('index'))
+
+@app.errorhandler(401)
+def unauthorized(e):
+    logger.info(f"401 erreur : tentative accès non autorisé - IP: {request.remote_addr}")
+    flash("Vous devez être connecté pour accéder à cette page.", "warning")
+    return redirect(url_for('login'))
+
+@app.before_request
+def log_request_info():
+    if request.method == 'POST':
+        logger.info(f"Requête POST sur {request.endpoint} - IP: {request.remote_addr}")
+
+@app.after_request
+def log_response_info(response):
+    if response.status_code >= 400:
+        logger.warning(f"Réponse {response.status_code} sur {request.endpoint} - IP: {request.remote_addr}")
+    return response
+
+@app.route('/admin/logs')
+@login_required
+def view_logs():
+    if current_user.username != 'admin':
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('index'))
+    
+    try:
+        with open('logs/app.log', 'r', encoding='utf-8') as f:
+            logs = f.read().split('\n')[-100:]
+        return render_template('logs.html', logs=logs)
+    except:
+        return render_template('logs.html', logs=["Aucun log disponible"])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

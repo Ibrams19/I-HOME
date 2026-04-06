@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Avis sur {{ user.username }} - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-5 text-center">
+                    <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                    <h2 class="fw-bold">Donner mon avis</h2>
+                    <p class="text-muted">Sur {{ user.username }}</p>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Note (1 à 5)</label>
+                            <div class="rating-stars d-flex justify-content-center gap-2 mb-2">
+                                {% for i in range(1, 6) %}
+                                <i class="star far fa-star fs-1" data-value="{{ i }}" style="cursor: pointer;"></i>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="rating" id="rating" value="{{ existing.rating if existing else 0 }}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Commentaire (optionnel)</label>
+                            <textarea name="comment" class="form-control" rows="4" placeholder="Partagez votre expérience...">{{ existing.comment if existing else '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Envoyer mon avis</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('rating');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = parseInt(this.dataset.value);
+            ratingInput.value = value;
+            stars.forEach((s, index) => {
+                if (index < value) {
+                    s.classList.remove('far');
+                    s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                }
+            });
+        });
+    });
+    
+    {% if existing and existing.rating %}
+        const existingRating = {{ existing.rating }};
+        ratingInput.value = existingRating;
+        stars.forEach((s, index) => {
+            if (index < existingRating) {
+                s.classList.remove('far');
+                s.classList.add('fas');
+            }
+        });
+    {% endif %}
+</script>
+{% endblock %}

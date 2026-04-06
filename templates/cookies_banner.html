@@ -1,0 +1,93 @@
+<!-- Bannière cookies -->
+<div id="cookies-banner" class="position-fixed bottom-0 start-0 end-0 bg-dark text-white p-3 shadow-lg" style="z-index: 9999; display: none;">
+    <div class="container">
+        <div class="row align-items-center g-3">
+            <div class="col-md-8">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="fas fa-cookie-bite fa-2x text-warning"></i>
+                    <div>
+                        <h6 class="mb-1 fw-bold">🍪 Nous utilisons des cookies</h6>
+                        <p class="small mb-0 opacity-75">Ce site utilise des cookies pour améliorer votre expérience, mémoriser votre connexion et analyser le trafic. En continuant, vous acceptez notre <a href="{{ url_for('politique_confidentialite') }}" class="text-warning">politique de confidentialité</a>.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <button id="cookies-accept" class="btn btn-success btn-sm rounded-pill px-4">
+                        <i class="fas fa-check me-1"></i>Accepter
+                    </button>
+                    <button id="cookies-reject" class="btn btn-outline-light btn-sm rounded-pill px-4">
+                        <i class="fas fa-times me-1"></i>Refuser
+                    </button>
+                    <button id="cookies-settings" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier si l'utilisateur a déjà fait un choix
+    const cookieConsent = localStorage.getItem('cookie_consent');
+    const banner = document.getElementById('cookies-banner');
+    
+    if (!cookieConsent) {
+        banner.style.display = 'block';
+    }
+    
+    // Accepter les cookies
+    document.getElementById('cookies-accept').addEventListener('click', function() {
+        localStorage.setItem('cookie_consent', 'accepted');
+        banner.style.display = 'none';
+        
+        // Envoyer la préférence au serveur
+        fetch('/cookies-consent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]')?.value || ''
+            },
+            body: JSON.stringify({ consent: 'accepted' })
+        });
+    });
+    
+    // Refuser les cookies
+    document.getElementById('cookies-reject').addEventListener('click', function() {
+        localStorage.setItem('cookie_consent', 'rejected');
+        banner.style.display = 'none';
+        
+        fetch('/cookies-consent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ consent: 'rejected' })
+        });
+    });
+    
+    // Paramètres (optionnel)
+    document.getElementById('cookies-settings').addEventListener('click', function() {
+        window.location.href = "{{ url_for('politique_confidentialite') }}";
+    });
+});
+</script>
+
+<style>
+    #cookies-banner {
+        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.95) !important;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    @media (max-width: 768px) {
+        #cookies-banner .container {
+            padding: 0.5rem;
+        }
+        #cookies-banner .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.7rem;
+        }
+    }
+</style>

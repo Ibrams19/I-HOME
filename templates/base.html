@@ -2,54 +2,457 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocApp - Location & Vente Directe</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .hero { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://source.unsplash.com/1600x900/?apartment'); background-size: cover; color: white; padding: 100px 0; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2563eb">
+    <title>I-HOME - {% block title %}Location & Vente Immobilier{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <!-- Barre de navigation améliorée -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">I-HOME</a>
-            
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ url_for('listings') }}">Voir les annonces</a>
-                
-                {% if current_user.is_authenticated %}
-                    {% if session.get('is_owner') %}
-                        <a class="nav-link btn btn-success text-white mx-2 px-3" href="{{ url_for('publish') }}">
-                            ➕ Publier une annonce
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-building"></i> I-HOME
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Accueil
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('listings') }}">
+                            <i class="fas fa-search"></i> Annonces
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.can_publish %}
+                        <li class="nav-item">
+                            <a class="nav-link btn-publish" href="{{ url_for('publish') }}">
+                                <i class="fas fa-plus-circle"></i> Publier
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <li class="nav-item position-relative">
+                            <a class="nav-link" href="{{ url_for('my_conversations') }}" id="messages-link">
+                                <i class="fas fa-comments"></i> Messages
+                                <span id="unread-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> {{ current_user.username }}
+                                {% if current_user.is_broker %}
+                                    <span class="badge bg-info ms-1">Courtier</span>
+                                {% elif current_user.is_owner %}
+                                    <span class="badge bg-success ms-1">Propriétaire</span>
+                                {% else %}
+                                    <span class="badge bg-secondary ms-1">Locataire</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if current_user.can_publish %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('profile') }}">
+                                        <i class="fas fa-id-card"></i> Mon profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('publish') }}">
+                                        <i class="fas fa-plus-circle text-success"></i> Publier une annonce
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('my_listings') }}">
+                                        <i class="fas fa-list"></i> Mes annonces
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <!-- Lien Mes favoris (pour tous les utilisateurs connectés) -->
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('favorites') }}">
+                                        <i class="fas fa-heart text-danger"></i> Mes favoris
+                                    </a>
+                                </li>
+                                {% if current_user.can_publish %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('subscription') }}">
+                                        <i class="fas fa-crown text-warning"></i> Abonnements
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt"></i> Connexion
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus"></i> Inscription
+                            </a>
+                        </li>
                     {% endif %}
-                    <span class="nav-link text-light">Bonjour {{ current_user.username }}</span>
-                    <a class="nav-link" href="{{ url_for('logout') }}">Déconnexion</a>
-                {% else %}
-                    <a class="nav-link" href="{{ url_for('login') }}">Connexion</a>
-                    <a class="nav-link" href="{{ url_for('register') }}">Inscription</a>
-                {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }}">
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
                         {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-
-        {% block content %}{% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h6 class="fw-bold mb-2">I-HOME</h6>
+                    <p class="small text-muted">Plateforme de mise en relation directe entre propriétaires, courtiers et locataires au Sénégal.</p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h6 class="fw-bold mb-2">Liens utiles</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="{{ url_for('cgu') }}" class="text-decoration-none text-muted">Conditions Générales d'Utilisation</a></li>
+                        <li><a href="{{ url_for('mentions_legales') }}" class="text-decoration-none text-muted">Mentions légales</a></li>
+                        <li><a href="{{ url_for('politique_confidentialite') }}" class="text-decoration-none text-muted">Politique de confidentialité</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Contact</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-2">Contact</h6>
+                    <ul class="list-unstyled small">
+                        <li><i class="fas fa-envelope me-2 text-muted"></i>contact@i-home.sn</li>
+                        <li><i class="fab fa-whatsapp me-2 text-muted"></i>+221 78 000 00 00</li>
+                        <li><i class="fas fa-map-marker-alt me-2 text-muted"></i>Dakar, Sénégal</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="text-center">
+                <p class="small text-muted mb-0">&copy; 2026 I-HOME - Tous droits réservés</p>
+                <p class="small text-muted mt-1">Mise en relation directe propriétaires - courtiers - locataires</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bouton retour en haut -->
+    <button onclick="scrollToTop()" id="scrollTopBtn" class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-3" style="display: none; width: 50px; height: 50px; z-index: 999; padding: 0;">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Retour en haut
+    window.onscroll = function() {
+        const btn = document.getElementById('scrollTopBtn');
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            btn.style.display = 'flex';
+        } else {
+            btn.style.display = 'none';
+        }
+    };
+    
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Messages non lus
+    function checkUnreadMessages() {
+        fetch('/api/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('unread-badge');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(error => console.log('Erreur:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        checkUnreadMessages();
+        setInterval(checkUnreadMessages, 30000);
+    });
+    </script>
+    
+    <!-- Inclusion de la bannière cookies -->
+    {% include "cookies_banner.html" %}
+    
+    <!-- Bannière Politique de confidentialité -->
+    <div id="privacy-banner" class="position-fixed bottom-0 start-0 end-0 bg-white shadow-lg p-3" style="z-index: 9999; display: none; border-top: 3px solid #2563eb;">
+        <div class="container">
+            <div class="row align-items-center g-3">
+                <div class="col-md-9">
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                        <div>
+                            <h6 class="mb-1 fw-bold">🍪 Politique de confidentialité</h6>
+                            <p class="small text-muted mb-0">En acceptant, vous confirmez avoir lu et accepté notre <a href="{{ url_for('politique_confidentialite') }}" target="_blank">politique de confidentialité</a> et l'utilisation des cookies.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <button id="accept-privacy" class="btn btn-primary rounded-pill px-4 w-100 w-md-auto">
+                        <i class="fas fa-check me-1"></i>J'accepte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier si l'utilisateur a déjà accepté
+        const privacyAccepted = localStorage.getItem('privacy_accepted');
+        const banner = document.getElementById('privacy-banner');
+        
+        // Afficher la bannière seulement si non accepté
+        if (!privacyAccepted) {
+            banner.style.display = 'block';
+        }
+        
+        // Bouton Accepter
+        document.getElementById('accept-privacy').addEventListener('click', function() {
+            localStorage.setItem('privacy_accepted', 'true');
+            banner.style.display = 'none';
+            
+            // Optionnel : envoyer la confirmation au serveur
+            fetch('/privacy-consent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ consent: true })
+            });
+            
+            // Rediriger vers la page d'accueil si on n'y est pas déjà
+            if (window.location.pathname !== '/' && window.location.pathname !== '/index') {
+                window.location.href = "{{ url_for('index') }}";
+            }
+        });
+    });
+    </script>
+
+    <style>
+        #privacy-banner {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.98) !important;
+        }
+        @media (max-width: 768px) {
+            #privacy-banner .btn {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+    
+    <!-- Overlay de blocage -->
+    <div id="privacy-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div class="card border-0 shadow-lg rounded-4" style="max-width: 500px; margin: 1rem;">
+            <div class="card-body p-4 p-md-5 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-shield-alt fa-4x text-primary"></i>
+                </div>
+                <h2 class="fw-bold mb-3">Politique de confidentialité</h2>
+                <p class="text-muted mb-4">
+                    Nous accordons une grande importance à la protection de vos données personnelles.
+                    Veuillez lire et accepter notre politique de confidentialité pour continuer.
+                </p>
+                <div class="bg-light rounded-3 p-3 mb-4 text-start" style="max-height: 200px; overflow-y: auto; font-size: 0.85rem;">
+                    <small>
+                        <strong>🔒 Ce que nous collectons :</strong><br>
+                        • Nom d'utilisateur<br>
+                        • Adresse email<br>
+                        • Numéro de téléphone<br>
+                        • Adresse IP<br><br>
+                        
+                        <strong>📊 Utilisation des données :</strong><br>
+                        • Gestion de votre compte<br>
+                        • Publication d'annonces<br>
+                        • Communication via messagerie<br>
+                        • Amélioration du service<br><br>
+                        
+                        <strong>🍪 Cookies :</strong><br>
+                        Nous utilisons des cookies essentiels pour le fonctionnement du site.<br><br>
+                        
+                        <strong>📅 Conservation :</strong><br>
+                        Vos données sont conservées jusqu'à suppression de votre compte.<br><br>
+                        
+                        <strong>✅ Vos droits :</strong><br>
+                        • Accès et rectification<br>
+                        • Suppression de votre compte<br>
+                        • Opposition au traitement<br><br>
+                        
+                        <a href="{{ url_for('politique_confidentialite') }}" target="_blank" class="text-primary">📖 Lire la politique complète</a>
+                    </small>
+                </div>
+                <div class="d-grid gap-2">
+                    <button id="accept-privacy-overlay" class="btn btn-primary btn-lg rounded-pill">
+                        <i class="fas fa-check-circle me-2"></i>J'accepte et je continue
+                    </button>
+                    <button id="reject-privacy" class="btn btn-outline-secondary rounded-pill" onclick="alert('Vous devez accepter la politique de confidentialité pour utiliser I-HOME.')">
+                        <i class="fas fa-times me-2"></i>Je refuse (quitter)
+                    </button>
+                </div>
+                <p class="small text-muted mt-4 mb-0">
+                    En cliquant sur "J'accepte", vous confirmez avoir lu et accepté notre 
+                    <a href="{{ url_for('politique_confidentialite') }}" target="_blank">politique de confidentialité</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier si l'utilisateur a déjà accepté
+        const privacyAccepted = localStorage.getItem('privacy_accepted');
+        const overlay = document.getElementById('privacy-overlay');
+        
+        // Bloquer le scroll du body
+        function blockScroll() {
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function allowScroll() {
+            document.body.style.overflow = '';
+        }
+        
+        // Afficher l'overlay si non accepté
+        if (!privacyAccepted) {
+            overlay.style.display = 'flex';
+            blockScroll();
+        } else {
+            overlay.style.display = 'none';
+            allowScroll();
+        }
+        
+        // Bouton Accepter
+        document.getElementById('accept-privacy-overlay').addEventListener('click', function() {
+            localStorage.setItem('privacy_accepted', 'true');
+            overlay.style.display = 'none';
+            allowScroll();
+            
+            // Envoyer la confirmation au serveur (optionnel)
+            fetch('/privacy-consent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ consent: true })
+            }).catch(error => console.log('Erreur:', error));
+        });
+    });
+    </script>
+
+    <style>
+        #privacy-overlay {
+            transition: all 0.3s ease;
+        }
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+    </style>
+    
+    <!-- Notifications sur mobile -->
+    <script>
+    // Demander la permission pour les notifications
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+        Notification.requestPermission();
+    }
+
+    // Vérifier les nouveaux messages toutes les 10 secondes
+    let lastMessageCount = 0;
+
+    function checkNewMessages() {
+        fetch('/api/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('unread-badge');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline-block';
+                    
+                    // Notification sur mobile si nouveau message
+                    if (data.count > lastMessageCount && data.count > 0 && document.hidden) {
+                        // Vibration (si supporté)
+                        if ('vibrate' in navigator) {
+                            navigator.vibrate(200);
+                        }
+                        
+                        // Notification push
+                        if (Notification.permission === 'granted') {
+                            new Notification('📬 Nouveau message I-HOME', {
+                                body: `Vous avez ${data.count} nouveau(x) message(s)`,
+                                icon: '/static/icon-192.png',
+                                badge: '/static/badge.png',
+                                tag: 'new-message',
+                                requireInteraction: true
+                            });
+                        }
+                    }
+                    lastMessageCount = data.count;
+                } else {
+                    badge.style.display = 'none';
+                    lastMessageCount = 0;
+                }
+            });
+    }
+
+    // Vérifier toutes les 10 secondes
+    setInterval(checkNewMessages, 10000);
+
+    // Vérifier au chargement
+    document.addEventListener('DOMContentLoaded', checkNewMessages);
+
+    // Vibration quand on clique sur le badge (optionnel)
+    document.getElementById('messages-link')?.addEventListener('click', function() {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+        }
+    });
+    </script>
 </body>
 </html>

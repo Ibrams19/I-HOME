@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}CGU - Conditions Générales d'Utilisation - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <!-- En-tête -->
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fas fa-file-contract fa-3x text-primary"></i>
+                        </div>
+                        <h1 class="fw-bold">Conditions Générales d'Utilisation</h1>
+                        <p class="text-muted">Dernière mise à jour : {{ now.strftime('%d/%m/%Y') if now else 'Avril 2026' }}</p>
+                    </div>
+                    
+                    <!-- Article 1 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-info-circle text-primary me-2"></i>Article 1 : Présentation du site</h4>
+                        <p>Le site I-HOME (ci-après "le Site") est une plateforme de mise en relation entre propriétaires, courtiers immobiliers et locataires/acheteurs au Sénégal. La plateforme permet aux propriétaires et courtiers de publier des annonces immobilières et aux locataires/acheteurs de consulter ces annonces et de contacter les annonceurs.</p>
+                        <p><strong>Éditeur :</strong> I-HOME SARL<br>
+                        <strong>Siège social :</strong> Dakar, Sénégal<br>
+                        <strong>Email :</strong> contact@i-home.sn<br>
+                        <strong>Téléphone :</strong> +221 78 000 00 00</p>
+                    </div>
+                    
+                    <!-- Article 2 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-user-check text-primary me-2"></i>Article 2 : Acceptation des CGU</h4>
+                        <p>L'utilisation du site I-HOME implique l'acceptation pleine et entière des présentes Conditions Générales d'Utilisation. Ces conditions sont opposables à tout utilisateur qui accède au site ou utilise ses services.</p>
+                        <p>I-HOME se réserve le droit de modifier ces CGU à tout moment. Les utilisateurs seront informés de ces modifications par email ou par notification sur le site.</p>
+                    </div>
+                    
+                    <!-- Article 3 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-user-plus text-primary me-2"></i>Article 3 : Création de compte</h4>
+                        <p>Pour utiliser certaines fonctionnalités du site (publication d'annonces, messagerie, favoris), l'utilisateur doit créer un compte en fournissant des informations exactes et à jour :</p>
+                        <ul>
+                            <li>Nom d'utilisateur</li>
+                            <li>Adresse email valide</li>
+                            <li>Numéro de téléphone (WhatsApp) pour les propriétaires et courtiers</li>
+                        </ul>
+                        <p>L'utilisateur est responsable de la confidentialité de son mot de passe et de toutes les activités effectuées depuis son compte.</p>
+                    </div>
+                    
+                    <!-- Article 4 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-home text-primary me-2"></i>Article 4 : Publication d'annonces</h4>
+                        <p>Les propriétaires et courtiers peuvent publier des annonces immobilières sous leur responsabilité. Les annonces doivent respecter les règles suivantes :</p>
+                        <ul>
+                            <li>Les informations fournies doivent être exactes et sincères</li>
+                            <li>Les photos doivent correspondre au bien proposé</li>
+                            <li>Le prix annoncé doit être conforme à la réalité</li>
+                            <li>Les annonces frauduleuses seront supprimées sans préavis</li>
+                        </ul>
+                        <p><strong>Tarification :</strong></p>
+                        <ul>
+                            <li>Les 100 premières annonces de la plateforme sont gratuites</li>
+                            <li>Au-delà : 1 000 FCFA par annonce ou abonnement mensuel</li>
+                            <li>Les abonnements sont disponibles : Basic (5 000 FCFA/mois), Premium (10 000 FCFA/mois), Pro (25 000 FCFA/mois)</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Article 5 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-shield-alt text-primary me-2"></i>Article 5 : Responsabilité</h4>
+                        <p>I-HOME agit uniquement comme plateforme de mise en relation. La responsabilité d'I-HOME ne peut être engagée en cas de :</p>
+                        <ul>
+                            <li>Litige entre propriétaires/courtiers et locataires/acheteurs</li>
+                            <li>Fausses informations fournies dans les annonces</li>
+                            <li>Défaut de conformité des biens proposés</li>
+                            <li>Problèmes techniques temporaires du site</li>
+                        </ul>
+                        <p>I-HOME se réserve le droit de supprimer toute annonce non conforme sans préavis.</p>
+                    </div>
+                    
+                    <!-- Article 6 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-credit-card text-primary me-2"></i>Article 6 : Paiements</h4>
+                        <p>Les paiements sur I-HOME s'effectuent exclusivement via Wave, Orange Money. I-HOME ne stocke aucune information bancaire.</p>
+                        <p>Les abonnements sont prélevés mensuellement ou annuellement selon la formule choisie. L'utilisateur peut résilier son abonnement à tout moment, sans remboursement de la période en cours.</p>
+                    </div>
+                    
+                    <!-- Article 7 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-database text-primary me-2"></i>Article 7 : Protection des données</h4>
+                        <p>Conformément à la réglementation sénégalaise sur la protection des données, les informations collectées sont utilisées uniquement pour le fonctionnement du site. Les utilisateurs disposent d'un droit d'accès, de modification et de suppression de leurs données.</p>
+                        <p>Les données personnelles ne sont pas vendues à des tiers.</p>
+                    </div>
+                    
+                    <!-- Article 8 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-ban text-primary me-2"></i>Article 8 : Suspension et résiliation</h4>
+                        <p>I-HOME se réserve le droit de suspendre ou résilier un compte utilisateur en cas de :</p>
+                        <ul>
+                            <li>Non-respect des présentes CGU</li>
+                            <li>Publication d'annonces frauduleuses</li>
+                            <li>Comportement abusif envers d'autres utilisateurs</li>
+                            <li>Non-paiement des frais de publication</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Article 9 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-gavel text-primary me-2"></i>Article 9 : Droit applicable</h4>
+                        <p>Les présentes CGU sont régies par le droit sénégalais. En cas de litige, une solution amiable sera recherchée avant toute action judiciaire devant les tribunaux compétents de Dakar.</p>
+                    </div>
+                    
+                    <!-- Article 10 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-envelope text-primary me-2"></i>Article 10 : Contact</h4>
+                        <p>Pour toute question relative aux présentes CGU, vous pouvez nous contacter :</p>
+                        <ul>
+                            <li>Email : spydixix@gmail.com</li>
+                            <li>Téléphone : +221 711504243</li>
+                            <li>Adresse : Dakar, Sénégal</li>
+                        </ul>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="small text-muted">En utilisant I-HOME, vous acceptez nos Conditions Générales d'Utilisation.</p>
+                        <a href="{{ url_for('index') }}" class="btn btn-primary rounded-pill px-4">
+                            <i class="fas fa-home me-2"></i>Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

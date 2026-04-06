@@ -1,24 +1,84 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Inscription - I-HOME{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2 class="mb-4">Inscription</h2>
-        <form method="POST">
-            <div class="mb-3">
-                <label>Nom d'utilisateur</label>
-                <input type="text" name="username" class="form-control" required>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                        <h2 class="fw-bold">Inscription</h2>
+                        <p class="text-muted">Créez votre compte gratuitement</p>
+                    </div>
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nom d'utilisateur</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-envelope me-1"></i>Email
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" name="email" class="form-control" placeholder="votre@email.com" required>
+                            <small class="text-muted">Utilisé pour la réinitialisation du mot de passe</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mot de passe</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Je suis :</label>
+                            <div class="form-check">
+                                <input type="radio" name="user_type" id="type_tenant" value="tenant" class="form-check-input" checked>
+                                <label class="form-check-label" for="type_tenant">
+                                    <i class="fas fa-search"></i> Locataire / Acheteur
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="user_type" id="type_owner" value="owner" class="form-check-input">
+                                <label class="form-check-label" for="type_owner">
+                                    <i class="fas fa-home"></i> Propriétaire
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="user_type" id="type_broker" value="broker" class="form-check-input">
+                                <label class="form-check-label" for="type_broker">
+                                    <i class="fas fa-building"></i> Courtier / Agence
+                                </label>
+                            </div>
+                        </div>
+                        <div id="agency-field" style="display: none;" class="mb-3">
+                            <label class="form-label fw-bold">Nom de l'agence</label>
+                            <input type="text" name="agency_name" class="form-control" placeholder="Nom de votre agence">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                            <i class="fas fa-user-plus me-1"></i> S'inscrire
+                        </button>
+                    </form>
+                    <hr class="my-4">
+                    <p class="text-center mb-0">Déjà inscrit ? <a href="{{ url_for('login') }}" class="text-primary fw-bold">Connectez-vous</a></p>
+                </div>
             </div>
-            <div class="mb-3">
-                <label>Mot de passe</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" name="is_owner" class="form-check-input" id="is_owner">
-                <label class="form-check-label" for="is_owner">Je suis propriétaire (je veux publier des annonces)</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Créer mon compte</button>
-        </form>
-        <p class="mt-3">Déjà inscrit ? <a href="{{ url_for('login') }}">Se connecter</a></p>
+        </div>
     </div>
 </div>
+
+<script>
+    const radioOwner = document.getElementById('type_owner');
+    const radioBroker = document.getElementById('type_broker');
+    const agencyField = document.getElementById('agency-field');
+    
+    function toggleAgencyField() {
+        agencyField.style.display = (radioBroker.checked) ? 'block' : 'none';
+    }
+    
+    radioOwner.addEventListener('change', toggleAgencyField);
+    radioBroker.addEventListener('change', toggleAgencyField);
+</script>
 {% endblock %}

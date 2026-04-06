@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Politique de Confidentialité - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                        </div>
+                        <h1 class="fw-bold">Politique de Confidentialité</h1>
+                        <p class="text-muted">Dernière mise à jour : Avril 2026</p>
+                    </div>
+                    
+                    <!-- Introduction -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-info-circle text-primary me-2"></i>Introduction</h4>
+                        <p>Chez I-HOME, nous accordons une grande importance à la protection de vos données personnelles. Cette politique de confidentialité explique quelles informations nous collectons, comment nous les utilisons et comment vous pouvez les contrôler.</p>
+                    </div>
+                    
+                    <!-- Données collectées -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-database text-primary me-2"></i>Données collectées</h4>
+                        <p><strong>Lors de l'inscription :</strong></p>
+                        <ul>
+                            <li>Nom d'utilisateur</li>
+                            <li>Adresse email</li>
+                            <li>Numéro de téléphone (pour les propriétaires et courtiers)</li>
+                            <li>Nom de l'agence (pour les courtiers)</li>
+                        </ul>
+                        <p><strong>Lors de l'utilisation :</strong></p>
+                        <ul>
+                            <li>Adresse IP</li>
+                            <li>Type de navigateur</li>
+                            <li>Pages visitées</li>
+                            <li>Date et heure de connexion</li>
+                            <li>Cookies</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Utilisation des données -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-chart-line text-primary me-2"></i>Utilisation des données</h4>
+                        <p>Vos données sont utilisées pour :</p>
+                        <ul>
+                            <li>Gérer votre compte et vous authentifier</li>
+                            <li>Publier et gérer vos annonces</li>
+                            <li>Vous contacter (messagerie, notifications)</li>
+                            <li>Améliorer notre service (analytiques)</li>
+                            <li>Prévenir la fraude et les abus</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Cookies -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-cookie-bite text-primary me-2"></i>Cookies</h4>
+                        <p>Nous utilisons les types de cookies suivants :</p>
+                        <ul>
+                            <li><strong>Cookies essentiels :</strong> Nécessaires au fonctionnement du site (connexion, session)</li>
+                            <li><strong>Cookies de performance :</strong> Pour analyser l'utilisation du site (Google Analytics)</li>
+                            <li><strong>Cookies fonctionnels :</strong> Pour mémoriser vos préférences</li>
+                        </ul>
+                        <p>Vous pouvez gérer vos préférences cookies via la bannière ou les paramètres de votre navigateur.</p>
+                    </div>
+                    
+                    <!-- Partage des données -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-share-alt text-primary me-2"></i>Partage des données</h4>
+                        <p>Vos données ne sont jamais vendues à des tiers. Elles peuvent être partagées uniquement dans les cas suivants :</p>
+                        <ul>
+                            <li>Avec votre consentement explicite</li>
+                            <li>Pour respecter une obligation légale</li>
+                            <li>Avec nos prestataires techniques (hébergement, paiement)</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Vos droits -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-gavel text-primary me-2"></i>Vos droits</h4>
+                        <p>Conformément à la loi sénégalaise n° 2008-12 du 25 janvier 2008, vous disposez des droits suivants :</p>
+                        <ul>
+                            <li><strong>Droit d'accès :</strong> consulter vos données</li>
+                            <li><strong>Droit de rectification :</strong> modifier vos données</li>
+                            <li><strong>Droit à l'effacement :</strong> supprimer votre compte</li>
+                            <li><strong>Droit d'opposition :</strong> refuser le traitement</li>
+                            <li><strong>Droit à la portabilité :</strong> récupérer vos données</li>
+                        </ul>
+                        <p>Pour exercer ces droits, contactez-nous à : <strong>dpo@i-home.sn</strong></p>
+                    </div>
+                    
+                    <!-- Conservation -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-clock text-primary me-2"></i>Durée de conservation</h4>
+                        <ul>
+                            <li>Données de compte : jusqu'à suppression du compte</li>
+                            <li>Annonces : 1 an après la dernière activité</li>
+                            <li>Messages : 1 an</li>
+                            <li>Logs techniques : 6 mois</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Sécurité -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-lock text-primary me-2"></i>Sécurité</h4>
+                        <p>Nous mettons en œuvre des mesures techniques et organisationnelles pour protéger vos données :</p>
+                        <ul>
+                            <li>Chiffrement des mots de passe</li>
+                            <li>Connexion HTTPS</li>
+                            <li>Protection CSRF</li>
+                            <li>Accès limité aux données</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Contact -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-envelope text-primary me-2"></i>Contact</h4>
+                        <p>Pour toute question relative à cette politique :</p>
+                        <ul>
+                            <li>Email : <strong>dpo@i-home.sn</strong></li>
+                            <li>Téléphone : <strong>+221 78 000 00 00</strong></li>
+                            <li>Adresse : <strong>Dakar, Sénégal</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary rounded-pill px-4">
+                            <i class="fas fa-home me-2"></i>Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

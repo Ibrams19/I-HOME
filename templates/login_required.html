@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion requise - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 text-center">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-lock fa-4x text-primary"></i>
+                    </div>
+                    <h2 class="fw-bold mb-3">Connexion requise</h2>
+                    <p class="text-muted mb-4">
+                        Pour voir les détails de cette annonce, vous devez être connecté à votre compte.
+                    </p>
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <a href="{{ url_for('login') }}" class="btn btn-primary w-100 py-3 rounded-pill">
+                                <i class="fas fa-sign-in-alt"></i> Se connecter
+                            </a>
+                        </div>
+                        <div class="col-12">
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill">
+                                <i class="fas fa-user-plus"></i> Créer un compte
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-start">
+                        <h6 class="fw-bold mb-3">Aperçu de l'annonce :</h6>
+                        <div class="d-flex align-items-start gap-3">
+                            <img src="{{ annonce.image_url }}" alt="{{ annonce.title }}" 
+                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;"
+                                 onerror="this.src='https://via.placeholder.com/80?text=Photo'">
+                            <div>
+                                <h6 class="mb-1">{{ annonce.title }}</h6>
+                                <p class="text-primary fw-bold mb-0">{{ "{:,.0f}".format(annonce.price) }} FCFA</p>
+                                <small class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ annonce.neighborhood }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4 mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        <small>L'inscription est gratuite et vous permet de contacter les propriétaires et courtiers directement.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

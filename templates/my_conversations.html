@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Mes conversations - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="text-center mb-5">
+        <div class="mb-3">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3">
+                <i class="fas fa-comments fa-3x text-primary"></i>
+            </div>
+        </div>
+        <h1 class="display-5 fw-bold">Mes conversations</h1>
+        <p class="text-muted">Discutez avec les propriétaires, courtiers et locataires</p>
+    </div>
+    
+    {% if conversations %}
+        <div class="row g-4">
+            {% for conv in conversations %}
+            {% set unread_count = 0 %}
+            {% for msg in conv.messages %}
+                {% if not msg.is_read and msg.sender_id != current_user.id %}
+                    {% set unread_count = unread_count + 1 %}
+                {% endif %}
+            {% endfor %}
+            
+            <div class="col-12">
+                <a href="{{ url_for('chat', conversation_id=conv.id) }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 hover-card {% if unread_count > 0 %}border-start border-primary border-4{% endif %}">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="avatar-circle {% if unread_count > 0 %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        <i class="fas fa-user-circle fa-2x text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <h5 class="fw-bold mb-1">
+                                            {{ conv.listing.title }}
+                                            {% if unread_count > 0 %}
+                                                <span class="badge bg-danger rounded-pill ms-2">{{ unread_count }}</span>
+                                            {% endif %}
+                                        </h5>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-home me-1"></i> {{ conv.listing.neighborhood }}
+                                        </span>
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-tag me-1"></i> {{ conv.listing.property_type|replace('_', ' ')|title }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-user-circle text-muted"></i>
+                                        <div>
+                                            <small class="text-muted">Avec</small>
+                                            <div class="fw-semibold">
+                                                {% if current_user.id == conv.owner_id %}
+                                                    {{ conv.tenant.username }}
+                                                    {% if conv.tenant.is_broker %}
+                                                        <span class="badge bg-info ms-1">Courtier</span>
+                                                    {% elif conv.tenant.is_owner %}
+                                                        <span class="badge bg-success ms-1">Propriétaire</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    {{ conv.owner.username }}
+                                                    {% if conv.owner.is_broker %}
+                                                        <span class="badge bg-info ms-1">Courtier</span>
+                                                    {% elif conv.owner.is_owner %}
+                                                        <span class="badge bg-success ms-1">Propriétaire</span>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                    <div class="d-flex flex-column align-items-md-end">
+                                        <small class="text-muted">
+                                            <i class="far fa-clock me-1"></i>
+                                            {{ conv.last_message_date.strftime('%d/%m/%Y à %H:%M') }}
+                                        </small>
+                                        {% if conv.last_message %}
+                                            <small class="text-truncate mt-1" style="max-width: 200px;">
+                                                <i class="fas fa-reply me-1"></i>
+                                                {{ conv.last_message[:50] }}{% if conv.last_message|length > 50 %}...{% endif %}
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-auto d-none d-md-block">
+                                    <i class="fas fa-chevron-right text-muted"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Message quand aucune conversation -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <div class="bg-light rounded-circle d-inline-flex p-4">
+                    <i class="fas fa-inbox fa-4x text-muted"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold mb-3">Aucune conversation</h3>
+            <p class="text-muted mb-4">
+                Vous n'avez pas encore de discussions.<br>
+                Commencez à échanger avec les propriétaires et courtiers dès maintenant !
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ url_for('listings') }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-search me-2"></i> Parcourir les annonces
+                </a>
+                {% if current_user.can_publish %}
+                <a href="{{ url_for('publish') }}" class="btn btn-outline-primary rounded-pill px-4">
+                    <i class="fas fa-plus-circle me-2"></i> Publier une annonce
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .border-start-primary {
+        border-left: 4px solid var(--primary);
+    }
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    @media (max-width: 768px) {
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+        }
+        .avatar-circle i {
+            font-size: 1.2rem;
+        }
+        .card-body {
+            padding: 1rem !important;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Discussion - {{ listing.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- En-tête -->
+                <div class="card-header bg-white p-3 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="{{ url_for('my_conversations') }}" class="btn btn-outline-secondary rounded-circle">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-0">{{ listing.title }}</h5>
+                            <small class="text-muted">
+                                Discussion avec 
+                                {% if current_user.id == conversation.owner_id %}
+                                    {{ conversation.tenant.username }}
+                                    {% if conversation.tenant.is_broker %}
+                                        <span class="badge bg-info ms-1">Courtier</span>
+                                    {% elif conversation.tenant.is_owner %}
+                                        <span class="badge bg-success ms-1">Propriétaire</span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ conversation.owner.username }}
+                                    {% if conversation.owner.is_broker %}
+                                        <span class="badge bg-info ms-1">Courtier</span>
+                                    {% elif conversation.owner.is_owner %}
+                                        <span class="badge bg-success ms-1">Propriétaire</span>
+                                    {% endif %}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="fas fa-circle text-success" style="font-size: 0.6rem;"></i>
+                                <small class="text-muted">En ligne</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Zone des messages -->
+                <div id="chat-messages" class="p-4" style="height: 500px; overflow-y: auto; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                    {% for message in conversation.messages %}
+                    <div class="d-flex mb-3 {% if message.sender_id == current_user.id %}justify-content-end{% endif %} message-item">
+                        <div class="{% if message.sender_id == current_user.id %}bg-primary text-white{% else %}bg-white shadow-sm{% endif %} rounded-3 p-3 message-bubble" style="max-width: 75%;">
+                            <small class="{% if message.sender_id == current_user.id %}text-white-50{% else %}text-muted{% endif %} d-block mb-1">
+                                <i class="fas fa-user-circle"></i> {{ message.sender.username }} • {{ message.created_at.strftime('%H:%M') }}
+                            </small>
+                            <p class="mb-0">{{ message.content }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div id="typing-indicator" class="d-none">
+                        <div class="d-flex mb-3">
+                            <div class="bg-white shadow-sm rounded-3 p-2 px-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-ellipsis-h"></i> Quelqu'un est en train d'écrire...
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Zone de saisie -->
+                <div class="card-footer bg-white p-3 border-0">
+                    <form method="POST" action="{{ url_for('send_message', conversation_id=conversation.id) }}" id="message-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="input-group">
+                            <input type="text" name="content" id="message-input" class="form-control rounded-pill" 
+                                   placeholder="Écrivez votre message..." required autocomplete="off">
+                            <button type="submit" class="btn btn-primary rounded-pill ms-2 px-4" id="send-btn">
+                                <i class="fas fa-paper-plane"></i> Envoyer
+                            </button>
+                        </div>
+                    </form>
+                    <small class="text-muted d-block mt-2 text-center">
+                        <i class="fas fa-lock me-1"></i> Messages sécurisés
+                    </small>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="{{ url_for('listing_detail', listing_id=listing.id) }}" class="text-decoration-none">
+                    <i class="fas fa-eye me-1"></i> Voir l'annonce
+                </a>
+                <span class="mx-2 text-muted">|</span>
+                <a href="{{ url_for('my_conversations') }}" class="text-decoration-none">
+                    <i class="fas fa-comments me-1"></i> Toutes mes conversations
+                </a>
+            </div>
+            
+            <!-- Bouton Email direct - UNIQUEMENT pour l'autre personne -->
+            <div class="mt-3 text-center">
+                {% if current_user.id == conversation.owner_id %}
+                    {# Je suis le propriétaire, je peux contacter le locataire #}
+                    {% if conversation.tenant.email and conversation.tenant.id != current_user.id %}
+                    <a href="mailto:{{ conversation.tenant.email }}?subject={{ 'Discussion I-HOME - ' + listing.title|urlencode }}&body={{ 'Bonjour%20' + conversation.tenant.username|urlencode + '%2C%0A%0ANous%20discutons%20sur%20I-HOME%20%C3%A0%20propos%20de%20votre%20annonce%20%3A%20' + listing.title|urlencode + '%0A%0ACordialement.' }}" 
+                       class="btn btn-outline-secondary rounded-pill">
+                        <i class="fas fa-envelope me-1"></i> Envoyer un email à {{ conversation.tenant.username }}
+                    </a>
+                    {% endif %}
+                {% else %}
+                    {# Je suis le locataire, je peux contacter le propriétaire #}
+                    {% if conversation.owner.email and conversation.owner.id != current_user.id %}
+                    <a href="mailto:{{ conversation.owner.email }}?subject={{ 'Discussion I-HOME - ' + listing.title|urlencode }}&body={{ 'Bonjour%20' + conversation.owner.username|urlencode + '%2C%0A%0ANous%20discutons%20sur%20I-HOME%20%C3%A0%20propos%20de%20votre%20annonce%20%3A%20' + listing.title|urlencode + '%0A%0ACordialement.' }}" 
+                       class="btn btn-outline-secondary rounded-pill">
+                        <i class="fas fa-envelope me-1"></i> Envoyer un email à {{ conversation.owner.username }}
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const container = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    let lastMessageCount = {{ conversation.messages|length }};
+    
+    container.scrollTop = container.scrollHeight;
+    messageInput.focus();
+    
+    sendBtn.addEventListener('click', function() {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+        }
+    });
+    
+    let refreshInterval = setInterval(function() {
+        fetch('{{ url_for("get_messages", conversation_id=conversation.id) }}')
+            .then(response => response.json())
+            .then(messages => {
+                if (messages.length > lastMessageCount) {
+                    container.innerHTML = '';
+                    messages.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `d-flex mb-3 ${msg.is_mine ? 'justify-content-end' : ''} message-item`;
+                        div.innerHTML = `<div class="${msg.is_mine ? 'bg-primary text-white' : 'bg-white shadow-sm'} rounded-3 p-3 message-bubble" style="max-width:75%">
+                            <small class="${msg.is_mine ? 'text-white-50' : 'text-muted'} d-block mb-1">
+                                <i class="fas fa-user-circle"></i> ${msg.sender_name} • ${msg.created_at}
+                            </small>
+                            <p class="mb-0">${escapeHtml(msg.content)}</p>
+                        </div>`;
+                        container.appendChild(div);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                    
+                    if (!msg.is_mine && 'vibrate' in navigator) {
+                        navigator.vibrate(100);
+                    }
+                }
+                lastMessageCount = messages.length;
+            });
+    }, 2000);
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    let typingTimeout;
+    messageInput.addEventListener('input', function() {
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {}, 1000);
+    });
+    
+    document.getElementById('message-form').addEventListener('submit', function(e) {
+        const input = document.getElementById('message-input');
+        if (!input.value.trim()) {
+            e.preventDefault();
+            alert("Veuillez écrire un message.");
+        }
+    });
+</script>
+
+<style>
+    .message-bubble {
+        word-wrap: break-word;
+        transition: all 0.2s ease;
+    }
+    .message-item {
+        animation: fadeInUp 0.3s ease-out;
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @media (max-width: 768px) {
+        .message-bubble {
+            max-width: 85% !important;
+        }
+        .card-header .btn-outline-secondary {
+            width: 35px;
+            height: 35px;
+            padding: 0;
+        }
+    }
+</style>
+{% endblock %}
