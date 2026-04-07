@@ -232,12 +232,31 @@ def register():
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
         user_type = request.form.get('user_type', 'tenant')
         
         if not username or not password:
             flash("Veuillez remplir tous les champs obligatoires.", "danger")
             logger.warning(f"Tentative d'inscription avec champs vides - IP: {request.remote_addr}")
             return redirect(url_for('register'))
+        
+        # ========== VALIDATION DU MOT DE PASSE ==========
+        if len(password) < 8:
+            flash("Le mot de passe doit contenir au moins 8 caractères.", "danger")
+            return redirect(url_for('register'))
+        
+        if not any(c.isalpha() for c in password):
+            flash("Le mot de passe doit contenir au moins une lettre.", "danger")
+            return redirect(url_for('register'))
+        
+        if not any(c.isdigit() for c in password):
+            flash("Le mot de passe doit contenir au moins un chiffre.", "danger")
+            return redirect(url_for('register'))
+        
+        if password != confirm_password:
+            flash("Les mots de passe ne correspondent pas.", "danger")
+            return redirect(url_for('register'))
+        # ================================================
         
         if email == '':
             email = None
@@ -254,6 +273,7 @@ def register():
             flash("Cet email est déjà utilisé.", "danger")
             return redirect(url_for('register'))
         
+        # Si tout est valide, créer l'utilisateur
         new_user = User(
             username=username,
             email=email,
