@@ -75,16 +75,23 @@
                 </span>
                 <span class="badge bg-primary px-3 py-2">
                     <i class="fas fa-building me-1"></i> 
-                    {% if annonce.property_type == 'studio' %}Studio
-                    {% elif annonce.property_type == 'studio_meuble' %}Studio meublé
-                    {% elif annonce.property_type == 'appartement' %}Appartement
-                    {% elif annonce.property_type == 'appartement_meuble' %}Appartement meublé
-                    {% elif annonce.property_type == 'chambre_meublee' %}Chambre meublée
-                    {% else %}Chambre simple{% endif %}
+                    {% if annonce.property_type == 'studio' %}
+                        Studio
+                    {% elif annonce.property_type == 'studio_meuble' %}
+                        Studio meublé
+                    {% elif annonce.property_type == 'appartement' %}
+                        Appartement
+                    {% elif annonce.property_type == 'appartement_meuble' %}
+                        Appartement meublé
+                    {% elif annonce.property_type == 'chambre_meublee' %}
+                        Chambre meublée
                     {% elif annonce.property_type == 'magasin' %}
-                         Magasin
+                        Magasin
                     {% elif annonce.property_type == 'depot' %}
                         Dépôt / Entrepôt
+                    {% else %}
+                        Chambre simple
+                    {% endif %}
                 </span>
                 <span class="badge bg-secondary px-3 py-2">
                     <i class="fas fa-map-marker-alt me-1"></i> {{ annonce.neighborhood }}

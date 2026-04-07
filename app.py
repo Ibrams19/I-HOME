@@ -12,9 +12,22 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
+import cloudinary
+import cloudinary.uploader
+from dotenv import load_dotenv
+
+load_dotenv()  # Charge les variables d'environnement depuis un fichier .env
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+
+# Configuration de Cloudinary
+cloudinary.config(
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
+    secure=True
+)
 
 # ==================== CONFIGURATION DES ANNONCES GRATUITES ====================
 TOTAL_FREE_LISTINGS_GLOBAL = 100  # 100 annonces gratuites pour toute la plateforme
@@ -495,28 +508,25 @@ def publish():
         image_url = '/static/default.jpg'
         images_list = []
         
+        # ========== UPLOAD VERS CLOUDINARY ==========
         if 'images' in request.files:
             files = request.files.getlist('images')
             for file in files:
                 if file and file.filename and allowed_file(file.filename):
                     try:
-                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
-                        filename = f"{timestamp}_{secure_filename(file.filename)}"
-                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                        file.save(filepath)
-                        try:
-                            img = Image.open(filepath)
-                            img.thumbnail((800, 600))
-                            img.save(filepath)
-                        except:
-                            pass
-                        img_url = f'/uploads/{filename}'
+                        # Upload direct vers Cloudinary
+                        upload_result = cloudinary.uploader.upload(file)
+                        
+                        # Récupère l'URL sécurisée de l'image
+                        img_url = upload_result['secure_url']
                         images_list.append(img_url)
+                        
                         if image_url == '/static/default.jpg':
                             image_url = img_url
                     except Exception as e:
-                        logger.error(f"Erreur upload image: {e}")
+                        logger.error(f"Erreur upload Cloudinary: {e}")
                         flash("Erreur lors de l'upload de l'image.", "danger")
+        # ============================================
         
         images_str = ','.join(images_list) if images_list else None
 
@@ -740,10 +750,6 @@ def subscribe(plan):
         flash(f"📅 Valable jusqu'au {nouvelle_date_fin.strftime('%d/%m/%Y')}", "info")
     
     logger.info(f"Abonnement changé: {current_user.username} - {ancien_abonnement} -> {plan}")
-    db.session.commit()
-    return redirect(url_for('my_listings'))
-    
-    logger.info(f"Abonnement changé: {current_user.username} - {ancien_abonnement} -> {plan} - IP: {request.remote_addr}")
     db.session.commit()
     return redirect(url_for('my_listings'))
 
