@@ -210,14 +210,13 @@
                     </div>
                     {% endif %}
                     
-                    <!-- Email direct -->
+                    <!-- Email avec modal -->
                     {% if annonce.auteur.email %}
                     <div class="mt-2">
-                        <a href="mailto:{{ annonce.auteur.email }}?subject={{ 'Demande d\'information - ' + annonce.title|urlencode }}&body={{ 'Bonjour%2C%0A%0AJe%20suis%20int%C3%A9ress%C3%A9%20par%20votre%20annonce%20:%20' + annonce.title|urlencode + '%0A%0AJe%20souhaiterais%20avoir%20plus%20d%27informations.%0A%0ACordialement.' }}" 
-                           class="btn btn-outline-secondary w-100 rounded-pill">
+                        <button type="button" class="btn btn-outline-secondary w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#emailModal">
                             <i class="fas fa-envelope me-1"></i> Envoyer un email
-                        </a>
-                        <small class="text-muted d-block text-center mt-2">Email envoyé à {{ annonce.auteur.username }}</small>
+                        </button>
+                        <small class="text-muted d-block text-center mt-2">Le propriétaire pourra vous répondre</small>
                     </div>
                     {% endif %}
                     
@@ -261,6 +260,51 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Email -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-envelope text-primary me-2"></i>Envoyer un email
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('send_email_to_user', user_id=annonce.auteur.id, listing_id=annonce.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Votre email</label>
+                        <input type="email" name="sender_email" class="form-control" 
+                               value="{{ current_user.email if current_user.is_authenticated else '' }}" required>
+                        <small class="text-muted">Le propriétaire pourra vous répondre à cette adresse</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Destinataire</label>
+                        <input type="text" class="form-control bg-light" value="{{ annonce.auteur.username }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Objet</label>
+                        <input type="text" name="subject" class="form-control" 
+                               value="Demande d'information - {{ annonce.title }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message</label>
+                        <textarea name="message" class="form-control" rows="5" 
+                                  placeholder="Bonjour, je suis intéressé par votre annonce..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">
+                        <i class="fas fa-paper-plane me-1"></i> Envoyer
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

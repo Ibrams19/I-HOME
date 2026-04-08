@@ -13224,3 +13224,617 @@
 2026-04-08 14:28:01,330 [INFO] 127.0.0.1 - - [08/Apr/2026 14:28:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
 2026-04-08 14:28:01,338 [INFO] 127.0.0.1 - - [08/Apr/2026 14:28:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
 2026-04-08 14:30:16,907 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 14:45:26,216 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 14:45:26,294 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.8:5000
+2026-04-08 14:45:26,294 [INFO] [33mPress CTRL+C to quit[0m
+2026-04-08 14:45:26,297 [INFO]  * Restarting with stat
+2026-04-08 14:45:26,965 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 14:45:27,026 [WARNING]  * Debugger is active!
+2026-04-08 14:45:27,029 [INFO]  * Debugger PIN: 139-711-694
+2026-04-08 14:45:33,415 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:33] "[32mGET /listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:45:33,443 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:33] "GET /login?next=/listing/1 HTTP/1.1" 200 -
+2026-04-08 14:45:33,467 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:45:33,470 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:45:33,471 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:33] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:45:33,492 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:33] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:45:33,497 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:33] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:45:33,552 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:33] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:45:33,560 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:33] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:45:43,496 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:43] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:45:43,500 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:43] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:45:46,063 [INFO] Requête POST sur login - IP: 127.0.0.1
+2026-04-08 14:45:46,228 [INFO] Connexion réussie: Oumar4 - IP: 127.0.0.1
+2026-04-08 14:45:46,229 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:46] "[32mPOST /login?next=/listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:45:46,237 [INFO] Page d'accueil chargée - IP: 127.0.0.1
+2026-04-08 14:45:46,253 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:46] "GET / HTTP/1.1" 200 -
+2026-04-08 14:45:46,276 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:45:46,280 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:45:46,281 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 14:45:46,281 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:46] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:45:46,285 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:45:46,286 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:46] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:45:46,299 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:46] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:45:46,305 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:46] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:45:49,500 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 14:45:49,575 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:49] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 14:45:49,594 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:45:49,597 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:45:49,597 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:49] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:45:49,599 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 14:45:49,602 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:45:49,604 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:49] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:45:49,610 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:49] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:45:49,615 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:49] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:45:59,612 [INFO] 127.0.0.1 - - [08/Apr/2026 14:45:59] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:09,611 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:09] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:19,618 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:19] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:19,624 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:19] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:29,610 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:29] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:38,299 [INFO] Requête POST sur send_email_to_user - IP: 127.0.0.1
+2026-04-08 14:46:39,616 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:39] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:44,247 [INFO] Requête POST sur send_email_to_user - IP: 127.0.0.1
+2026-04-08 14:46:44,519 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:44] "[32mPOST /send-email-to-user/1/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:46:46,266 [INFO] Requête POST sur send_email_to_user - IP: 127.0.0.1
+2026-04-08 14:46:48,918 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:48] "[32mPOST /send-email-to-user/1/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:46:49,607 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:49] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:49,613 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:49] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:49,934 [INFO] Requête POST sur send_email_to_user - IP: 127.0.0.1
+2026-04-08 14:46:50,536 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:50] "[32mPOST /send-email-to-user/1/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:46:50,909 [INFO] Requête POST sur send_email_to_user - IP: 127.0.0.1
+2026-04-08 14:46:54,862 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:54] "[32mPOST /send-email-to-user/1/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:46:55,982 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:55] "[32mPOST /send-email-to-user/1/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:46:56,008 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 14:46:56,012 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:56] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 14:46:56,044 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:46:56,050 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:46:56,052 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:56] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:46:56,054 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 14:46:56,063 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:46:56,067 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:56] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:46:56,076 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:56] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:46:56,085 [INFO] 127.0.0.1 - - [08/Apr/2026 14:46:56] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:06,075 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:16,069 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:16] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:26,071 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:26] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:26,077 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:26] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:36,083 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:46,069 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:46] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:56,071 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:56] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:47:56,076 [INFO] 127.0.0.1 - - [08/Apr/2026 14:47:56] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:06,082 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:16,078 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:16] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:18,284 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:18] "GET /my-conversations HTTP/1.1" 200 -
+2026-04-08 14:48:18,308 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:48:18,312 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:48:18,313 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:18] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:48:18,331 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:18] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:18,339 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:18] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:20,642 [INFO] Page d'accueil chargée - IP: 127.0.0.1
+2026-04-08 14:48:20,645 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:20] "GET / HTTP/1.1" 200 -
+2026-04-08 14:48:20,665 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:48:20,667 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:48:20,668 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:20] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:48:20,669 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 14:48:20,674 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:48:20,676 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:20] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:48:20,691 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:20] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:20,739 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:20] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:31,279 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:41,276 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:41] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:51,284 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:51] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:48:51,289 [INFO] 127.0.0.1 - - [08/Apr/2026 14:48:51] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:49:01,284 [INFO] 127.0.0.1 - - [08/Apr/2026 14:49:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:49:11,276 [INFO] 127.0.0.1 - - [08/Apr/2026 14:49:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:49:21,270 [INFO] 127.0.0.1 - - [08/Apr/2026 14:49:21] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:49:21,276 [INFO] 127.0.0.1 - - [08/Apr/2026 14:49:21] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:49:31,276 [INFO] 127.0.0.1 - - [08/Apr/2026 14:49:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:49:51,283 [INFO] 127.0.0.1 - - [08/Apr/2026 14:49:51] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:49:58,328 [INFO] 127.0.0.1 - - [08/Apr/2026 14:49:58] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:00,688 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:00] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:04,409 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 14:50:04,412 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:04] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 14:50:04,439 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:50:04,442 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:50:04,443 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:04] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:50:04,445 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 14:50:04,449 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:50:04,450 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:04] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:50:04,505 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:04] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:04,516 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:04] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:14,479 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:14] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:25,280 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:25] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:35,284 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:35,291 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:45,274 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:45] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:50:55,284 [INFO] 127.0.0.1 - - [08/Apr/2026 14:50:55] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:51:05,278 [INFO] 127.0.0.1 - - [08/Apr/2026 14:51:05] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:51:05,285 [INFO] 127.0.0.1 - - [08/Apr/2026 14:51:05] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:51:15,283 [INFO] 127.0.0.1 - - [08/Apr/2026 14:51:15] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:51:35,275 [INFO] 127.0.0.1 - - [08/Apr/2026 14:51:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:52:01,286 [INFO] 127.0.0.1 - - [08/Apr/2026 14:52:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:52:05,274 [INFO] 127.0.0.1 - - [08/Apr/2026 14:52:05] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:52:35,270 [INFO] 127.0.0.1 - - [08/Apr/2026 14:52:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:52:48,958 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 14:52:49,069 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.8:5000
+2026-04-08 14:52:49,070 [INFO] [33mPress CTRL+C to quit[0m
+2026-04-08 14:52:49,071 [INFO]  * Restarting with stat
+2026-04-08 14:52:50,013 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 14:52:50,096 [WARNING]  * Debugger is active!
+2026-04-08 14:52:50,100 [INFO]  * Debugger PIN: 139-711-694
+2026-04-08 14:53:01,291 [INFO] 127.0.0.1 - - [08/Apr/2026 14:53:01] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:53:01,321 [INFO] 127.0.0.1 - - [08/Apr/2026 14:53:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:05,273 [INFO] 127.0.0.1 - - [08/Apr/2026 14:53:05] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:53:05,278 [INFO] 127.0.0.1 - - [08/Apr/2026 14:53:05] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:28,836 [INFO] Page d'accueil chargée - IP: 192.168.1.7
+2026-04-08 14:53:28,852 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:28] "GET / HTTP/1.1" 200 -
+2026-04-08 14:53:28,916 [WARNING] 404 erreur : http://192.168.1.8:5000/static/css/style.css - IP: 192.168.1.7
+2026-04-08 14:53:28,919 [WARNING] Réponse 404 sur static - IP: 192.168.1.7
+2026-04-08 14:53:28,920 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:28] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:53:29,041 [WARNING] 404 erreur : http://192.168.1.8:5000/static/default.jpg - IP: 192.168.1.7
+2026-04-08 14:53:29,042 [WARNING] Réponse 404 sur static - IP: 192.168.1.7
+2026-04-08 14:53:29,043 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:29] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:53:32,974 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:32] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:53:32,983 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:32] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:53:33,148 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:33] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:33,151 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:33] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:33,553 [WARNING] 404 erreur : http://192.168.1.8:5000/favicon.ico - IP: 192.168.1.7
+2026-04-08 14:53:33,554 [WARNING] Réponse 404 sur None - IP: 192.168.1.7
+2026-04-08 14:53:33,555 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:33] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-08 14:53:33,706 [WARNING] 404 erreur : http://192.168.1.8:5000/apple-touch-icon-precomposed.png - IP: 192.168.1.7
+2026-04-08 14:53:33,707 [WARNING] Réponse 404 sur None - IP: 192.168.1.7
+2026-04-08 14:53:33,708 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:33] "[33mGET /apple-touch-icon-precomposed.png HTTP/1.1[0m" 404 -
+2026-04-08 14:53:34,070 [WARNING] 404 erreur : http://192.168.1.8:5000/apple-touch-icon.png - IP: 192.168.1.7
+2026-04-08 14:53:34,071 [WARNING] 404 erreur : http://192.168.1.8:5000/favicon.ico - IP: 192.168.1.7
+2026-04-08 14:53:34,071 [WARNING] Réponse 404 sur None - IP: 192.168.1.7
+2026-04-08 14:53:34,072 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:34] "[33mGET /apple-touch-icon.png HTTP/1.1[0m" 404 -
+2026-04-08 14:53:34,073 [WARNING] Réponse 404 sur None - IP: 192.168.1.7
+2026-04-08 14:53:34,073 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:34] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-08 14:53:36,350 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:36] "[32mGET /listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:53:36,447 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:36] "GET /login?next=/listing/1 HTTP/1.1" 200 -
+2026-04-08 14:53:36,839 [WARNING] 404 erreur : http://192.168.1.8:5000/static/css/style.css - IP: 192.168.1.7
+2026-04-08 14:53:36,840 [WARNING] Réponse 404 sur static - IP: 192.168.1.7
+2026-04-08 14:53:36,840 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:36] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:53:36,891 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:36] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:53:36,980 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:36] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:53:37,084 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:37] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:37,257 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:37] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:46,877 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:46] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:53:46,959 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:46] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:52,089 [INFO] Requête POST sur login - IP: 192.168.1.7
+2026-04-08 14:53:52,267 [INFO] Connexion réussie: Oumar4 - IP: 192.168.1.7
+2026-04-08 14:53:52,269 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:52] "[32mPOST /login?next=/listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:53:52,390 [INFO] Page d'accueil chargée - IP: 192.168.1.7
+2026-04-08 14:53:52,396 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:52] "GET / HTTP/1.1" 200 -
+2026-04-08 14:53:52,469 [WARNING] 404 erreur : http://192.168.1.8:5000/static/css/style.css - IP: 192.168.1.7
+2026-04-08 14:53:52,472 [WARNING] Réponse 404 sur static - IP: 192.168.1.7
+2026-04-08 14:53:52,473 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:52] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:53:52,491 [WARNING] 404 erreur : http://192.168.1.8:5000/static/default.jpg - IP: 192.168.1.7
+2026-04-08 14:53:52,493 [WARNING] Réponse 404 sur static - IP: 192.168.1.7
+2026-04-08 14:53:52,494 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:52] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:53:52,993 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:52] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:52,996 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:52] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:54,528 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 192.168.1.7
+2026-04-08 14:53:54,605 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:54] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 14:53:54,788 [WARNING] 404 erreur : http://192.168.1.8:5000/static/css/style.css - IP: 192.168.1.7
+2026-04-08 14:53:54,789 [WARNING] 404 erreur : http://192.168.1.8:5000/static/default.jpg - IP: 192.168.1.7
+2026-04-08 14:53:54,790 [WARNING] Réponse 404 sur static - IP: 192.168.1.7
+2026-04-08 14:53:54,791 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:54] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:53:54,793 [WARNING] Réponse 404 sur static - IP: 192.168.1.7
+2026-04-08 14:53:54,793 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:54] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:53:54,975 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:54] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:53:55,002 [INFO] 192.168.1.7 - - [08/Apr/2026 14:53:55] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:54:01,292 [INFO] 127.0.0.1 - - [08/Apr/2026 14:54:01] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:54:01,296 [INFO] 127.0.0.1 - - [08/Apr/2026 14:54:01] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:54:01,302 [INFO] 127.0.0.1 - - [08/Apr/2026 14:54:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:54:01,311 [INFO] 127.0.0.1 - - [08/Apr/2026 14:54:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:01,285 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:01] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:55:01,291 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:01] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:55:01,297 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:01,305 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:10,971 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:10] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:55:10,980 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:10] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:55:10,996 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:10] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:11,009 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:11] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:14,443 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:14] "[32mGET /listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:55:14,451 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:14] "GET /login?next=/listing/1 HTTP/1.1" 200 -
+2026-04-08 14:55:14,479 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:55:14,480 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:55:14,481 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:14] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:55:14,491 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:14] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:55:14,499 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:14] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:55:14,510 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:14] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:14,520 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:14] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:24,497 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:24] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 14:55:24,503 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:24] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:31,185 [INFO] Requête POST sur login - IP: 127.0.0.1
+2026-04-08 14:55:31,381 [INFO] Connexion réussie: Oumar4 - IP: 127.0.0.1
+2026-04-08 14:55:31,383 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:31] "[32mPOST /login?next=/listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 14:55:31,390 [INFO] Page d'accueil chargée - IP: 127.0.0.1
+2026-04-08 14:55:31,394 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:31] "GET / HTTP/1.1" 200 -
+2026-04-08 14:55:31,425 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:55:31,427 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 14:55:31,428 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:55:31,429 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:31] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:55:31,430 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:55:31,432 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:31] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:55:31,470 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:31,481 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:35,429 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 14:55:35,436 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:35] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 14:55:35,463 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 14:55:35,467 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:55:35,470 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:35] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 14:55:35,475 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 14:55:35,480 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 14:55:35,482 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:35] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 14:55:35,494 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:35,515 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:45,502 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:45] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:55:56,283 [INFO] 127.0.0.1 - - [08/Apr/2026 14:55:56] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:56:06,272 [INFO] 127.0.0.1 - - [08/Apr/2026 14:56:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:56:06,278 [INFO] 127.0.0.1 - - [08/Apr/2026 14:56:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:56:16,273 [INFO] 127.0.0.1 - - [08/Apr/2026 14:56:16] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:56:26,285 [INFO] 127.0.0.1 - - [08/Apr/2026 14:56:26] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:56:36,273 [INFO] 127.0.0.1 - - [08/Apr/2026 14:56:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:56:36,282 [INFO] 127.0.0.1 - - [08/Apr/2026 14:56:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:56:46,270 [INFO] 127.0.0.1 - - [08/Apr/2026 14:56:46] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:57:01,292 [INFO] 127.0.0.1 - - [08/Apr/2026 14:57:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:57:06,278 [INFO] 127.0.0.1 - - [08/Apr/2026 14:57:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:57:36,284 [INFO] 127.0.0.1 - - [08/Apr/2026 14:57:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:58:01,294 [INFO] 127.0.0.1 - - [08/Apr/2026 14:58:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:58:06,277 [INFO] 127.0.0.1 - - [08/Apr/2026 14:58:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:58:36,277 [INFO] 127.0.0.1 - - [08/Apr/2026 14:58:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 14:59:01,295 [INFO] 127.0.0.1 - - [08/Apr/2026 14:59:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:00:01,291 [INFO] 127.0.0.1 - - [08/Apr/2026 15:00:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:00:01,299 [INFO] 127.0.0.1 - - [08/Apr/2026 15:00:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:01:01,294 [INFO] 127.0.0.1 - - [08/Apr/2026 15:01:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:01:01,304 [INFO] 127.0.0.1 - - [08/Apr/2026 15:01:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:02:01,290 [INFO] 127.0.0.1 - - [08/Apr/2026 15:02:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:02:01,298 [INFO] 127.0.0.1 - - [08/Apr/2026 15:02:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:02:49,018 [INFO]  * Detected change in 'C:\\Users\\HP\\OneDrive\\Documents\\App immobiler\\app.py', reloading
+2026-04-08 15:02:49,205 [INFO]  * Restarting with stat
+2026-04-08 15:02:50,357 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 15:02:50,481 [WARNING]  * Debugger is active!
+2026-04-08 15:02:50,487 [INFO]  * Debugger PIN: 139-711-694
+2026-04-08 15:03:01,337 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:01] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:03:01,359 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:01] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:03:01,392 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:01,399 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:01] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:06,925 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 15:03:07,023 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.8:5000
+2026-04-08 15:03:07,024 [INFO] [33mPress CTRL+C to quit[0m
+2026-04-08 15:03:07,026 [INFO]  * Restarting with stat
+2026-04-08 15:03:07,930 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 15:03:08,020 [WARNING]  * Debugger is active!
+2026-04-08 15:03:08,023 [INFO]  * Debugger PIN: 139-711-694
+2026-04-08 15:03:14,197 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:14] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:03:14,204 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:14] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:03:14,245 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:14] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:14,256 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:14] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:15,495 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:15] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:03:15,502 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:15] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:17,547 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:17] "[32mGET /listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:03:17,556 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:17] "GET /login?next=/listing/1 HTTP/1.1" 200 -
+2026-04-08 15:03:17,587 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:03:17,593 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:03:17,596 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:17] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:03:17,609 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:17] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:03:17,619 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:17] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:03:17,637 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:17] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:17,654 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:17] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:26,445 [INFO] Requête POST sur login - IP: 127.0.0.1
+2026-04-08 15:03:26,672 [INFO] Connexion réussie: Oumar4 - IP: 127.0.0.1
+2026-04-08 15:03:26,673 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:26] "[32mPOST /login?next=/listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:03:26,683 [INFO] Page d'accueil chargée - IP: 127.0.0.1
+2026-04-08 15:03:26,704 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:26] "GET / HTTP/1.1" 200 -
+2026-04-08 15:03:26,733 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:03:26,736 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:03:26,736 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:26] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:03:26,737 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:03:26,743 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:03:26,744 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:26] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:03:26,778 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:26] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:26,787 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:26] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:30,269 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 15:03:30,356 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:30] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 15:03:30,381 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:03:30,384 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:03:30,385 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:30] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:03:30,386 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:03:30,392 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:03:30,394 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:30] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:03:30,401 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:30] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:30,413 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:30] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:40,408 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:40] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:03:50,401 [INFO] 127.0.0.1 - - [08/Apr/2026 15:03:50] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:00,399 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:00] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:00,405 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:00] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:02,049 [INFO] Requête POST sur send_email_to_user - IP: 127.0.0.1
+2026-04-08 15:04:04,714 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:04] "[32mPOST /send-email-to-user/1/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:04:04,741 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 15:04:04,747 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:04] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 15:04:04,772 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:04:04,773 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:04:04,776 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:04:04,777 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:04] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:04:04,785 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:04:04,787 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:04] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:04:04,816 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:04] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:04,828 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:04] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:14,811 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:14] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:24,805 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:24] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:34,801 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:34] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:34,809 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:34] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:44,813 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:44] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:04:54,805 [INFO] 127.0.0.1 - - [08/Apr/2026 15:04:54] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:04,800 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:04] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:04,806 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:04] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:14,798 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:14] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:24,805 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:24] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:34,800 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:34] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:34,806 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:34] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:44,809 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:44] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:05:54,812 [INFO] 127.0.0.1 - - [08/Apr/2026 15:05:54] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:05,278 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:05] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:05,284 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:05] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:15,286 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:15] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:25,284 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:25] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:35,276 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:35,282 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:35] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:45,282 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:45] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:06:55,276 [INFO] 127.0.0.1 - - [08/Apr/2026 15:06:55] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:07:05,283 [INFO] 127.0.0.1 - - [08/Apr/2026 15:07:05] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:07:56,277 [INFO] 127.0.0.1 - - [08/Apr/2026 15:07:56] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:07:56,283 [INFO] 127.0.0.1 - - [08/Apr/2026 15:07:56] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:08,540 [INFO]  * Detected change in 'C:\\Users\\HP\\OneDrive\\Documents\\App immobiler\\app.py', reloading
+2026-04-08 15:08:08,793 [INFO]  * Restarting with stat
+2026-04-08 15:08:09,905 [INFO] ⚠️ Mode développement : utilisation de SQLite locale
+2026-04-08 15:08:10,034 [WARNING]  * Debugger is active!
+2026-04-08 15:08:10,037 [INFO]  * Debugger PIN: 139-711-694
+2026-04-08 15:08:30,323 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:30] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:08:30,331 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:30] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:08:30,381 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:30] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:30,390 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:30] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:33,622 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:33] "[32mGET /listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:08:33,631 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:33] "GET /login?next=/listing/1 HTTP/1.1" 200 -
+2026-04-08 15:08:33,657 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:08:33,661 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:08:33,661 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:33] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:08:33,687 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:33] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:08:33,695 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:33] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:08:33,699 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:33] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:33,708 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:33] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:43,688 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:43] "[32mGET /api/unread-count HTTP/1.1[0m" 302 -
+2026-04-08 15:08:43,693 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:43] "GET /login?next=/api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:45,448 [INFO] Requête POST sur login - IP: 127.0.0.1
+2026-04-08 15:08:45,675 [INFO] Connexion réussie: Oumar4 - IP: 127.0.0.1
+2026-04-08 15:08:45,676 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:45] "[32mPOST /login?next=/listing/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:08:45,686 [INFO] Page d'accueil chargée - IP: 127.0.0.1
+2026-04-08 15:08:45,707 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:45] "GET / HTTP/1.1" 200 -
+2026-04-08 15:08:45,741 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:08:45,745 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:08:45,747 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:45] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:08:45,748 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:08:45,752 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:08:45,754 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:45] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:08:45,764 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:45] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:45,774 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:45] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:48,431 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 15:08:48,468 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:48] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 15:08:48,493 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:08:48,494 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:08:48,497 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:08:48,499 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:48] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:08:48,502 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:08:48,504 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:48] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:08:48,515 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:48] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:48,526 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:48] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:52,365 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:52] "[32mGET /start-conversation/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:08:52,465 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:52] "GET /chat/1 HTTP/1.1" 200 -
+2026-04-08 15:08:52,491 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:08:52,495 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:08:52,496 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:52] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:08:52,513 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:52] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:08:54,507 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:54] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:08:56,509 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:56] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:08:58,519 [INFO] 127.0.0.1 - - [08/Apr/2026 15:08:58] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:08:59,099 [INFO] Requête POST sur send_message - IP: 127.0.0.1
+2026-04-08 15:09:00,507 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:00] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:01,419 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:01] "[32mPOST /send_message/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:09:01,433 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:01] "GET /chat/1 HTTP/1.1" 200 -
+2026-04-08 15:09:01,462 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:09:01,465 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:01,466 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:01] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:09:01,482 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:03,478 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:03] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:05,484 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:05] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:08,767 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:08] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:10,765 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:10] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:11,788 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:11] "GET /my-conversations HTTP/1.1" 200 -
+2026-04-08 15:09:11,818 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:09:11,822 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:11,823 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:11] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:09:11,865 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:11,883 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:17,497 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:17] "GET /chat/1 HTTP/1.1" 200 -
+2026-04-08 15:09:17,523 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:09:17,526 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:17,528 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:17] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:09:17,570 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:17] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:19,553 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:19] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:20,464 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 15:09:20,468 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:20] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 15:09:20,501 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:09:20,504 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:20,506 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:20] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:09:20,506 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:09:20,512 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:20,514 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:20] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:09:20,523 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:20] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:20,536 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:20] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:24,601 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:24] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:25,554 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:25] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:27,558 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:27] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:29,553 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:29] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:31,547 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:31] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:33,551 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:33] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:35,556 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:35] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:37,553 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:37] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:39,546 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:39] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:41,553 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:41] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:43,553 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:43] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:44,238 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:44] "GET /my-conversations HTTP/1.1" 200 -
+2026-04-08 15:09:44,261 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:09:44,266 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:44,267 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:44] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:09:44,295 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:44] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:44,308 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:44] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:47,583 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:47] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:47,583 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:47] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:49,553 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:49] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:51,561 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:51] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:53,556 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:53] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:55,547 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:55] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:09:57,265 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 15:09:57,269 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:57] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 15:09:57,296 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:09:57,300 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:57,301 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:57] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:09:57,313 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:09:57,316 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:09:57,317 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:57] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:09:57,360 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:57] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:09:57,369 [INFO] 127.0.0.1 - - [08/Apr/2026 15:09:57] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:07,337 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:07] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:09,006 [INFO] Requête POST sur send_email_to_user - IP: 127.0.0.1
+2026-04-08 15:10:11,416 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:11] "[32mPOST /send-email-to-user/1/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:10:11,447 [INFO] Annonce consultée: Superbe appartement (ID: 1) - IP: 127.0.0.1
+2026-04-08 15:10:11,451 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:11] "GET /listing/1 HTTP/1.1" 200 -
+2026-04-08 15:10:11,486 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:10:11,488 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:10:11,494 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:10:11,496 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:11] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:10:11,496 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:10:11,497 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:11] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:10:11,512 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:11,524 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:21,519 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:21] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:31,524 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:41,519 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:41] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:41,528 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:41] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:10:51,520 [INFO] 127.0.0.1 - - [08/Apr/2026 15:10:51] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:01,534 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:11,514 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:11,520 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:21,521 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:21] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:31,524 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:41,524 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:41] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:41,531 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:41] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:11:51,515 [INFO] 127.0.0.1 - - [08/Apr/2026 15:11:51] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:01,515 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:11,511 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:11,518 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:21,515 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:21] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:31,515 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:41,517 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:41] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:41,524 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:41] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:12:51,515 [INFO] 127.0.0.1 - - [08/Apr/2026 15:12:51] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:13:01,520 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:01] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:13:11,520 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:13:11,526 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:11] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:13:21,530 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:21] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:13:31,517 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:31] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:13:35,917 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:35] "[32mGET /start-conversation/1 HTTP/1.1[0m" 302 -
+2026-04-08 15:13:35,938 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:35] "GET /chat/1 HTTP/1.1" 200 -
+2026-04-08 15:13:35,973 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:13:35,978 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:13:35,979 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:35] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:13:36,003 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:13:37,998 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:37] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:39,997 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:39] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:42,000 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:42] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:44,001 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:44] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:46,274 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:46] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:48,276 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:48] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:50,272 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:50] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:52,284 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:52] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:54,273 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:54] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:56,273 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:56] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:13:58,272 [INFO] 127.0.0.1 - - [08/Apr/2026 15:13:58] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:00,282 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:00] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:02,278 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:02] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:04,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:04] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:06,276 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:06] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:06,278 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:14:08,277 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:08] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:10,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:10] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:12,306 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:12] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:14,284 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:14] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:16,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:16] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:18,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:18] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:20,280 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:20] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:22,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:22] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:24,277 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:24] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:26,277 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:26] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:28,280 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:28] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:30,278 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:30] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:32,278 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:32] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:34,284 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:34] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:36,281 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:36] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:36,283 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:14:38,271 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:38] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:40,279 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:40] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:42,273 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:42] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:14:44,278 [INFO] 127.0.0.1 - - [08/Apr/2026 15:14:44] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:15:01,278 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:01] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:15:06,271 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:06] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:15:36,271 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:36] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:15:46,837 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:46] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:15:48,000 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:48] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:15:49,148 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:49] "GET /chat/1 HTTP/1.1" 200 -
+2026-04-08 15:15:49,168 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:15:49,171 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:15:49,172 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:49] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:15:49,214 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:49] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:15:52,196 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:52] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:15:55,191 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:55] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:15:58,201 [INFO] 127.0.0.1 - - [08/Apr/2026 15:15:58] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:16:01,205 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:01] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:16:04,196 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:04] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:16:07,196 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:07] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:16:10,196 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:10] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:16:13,201 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:13] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:16:16,194 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:16] "GET /get_messages/1 HTTP/1.1" 200 -
+2026-04-08 15:16:16,819 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:16] "GET /my-conversations HTTP/1.1" 200 -
+2026-04-08 15:16:16,846 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:16:16,850 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:16:16,851 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:16] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:16:16,867 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:16] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:16:16,881 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:16] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:16:24,124 [INFO] Page d'accueil chargée - IP: 127.0.0.1
+2026-04-08 15:16:24,129 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:24] "GET / HTTP/1.1" 200 -
+2026-04-08 15:16:24,165 [WARNING] 404 erreur : http://127.0.0.1:5000/static/css/style.css - IP: 127.0.0.1
+2026-04-08 15:16:24,168 [WARNING] 404 erreur : http://127.0.0.1:5000/static/default.jpg - IP: 127.0.0.1
+2026-04-08 15:16:24,169 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:16:24,170 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:24] "[33mGET /static/css/style.css HTTP/1.1[0m" 404 -
+2026-04-08 15:16:24,171 [WARNING] Réponse 404 sur static - IP: 127.0.0.1
+2026-04-08 15:16:24,172 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:24] "[33mGET /static/default.jpg HTTP/1.1[0m" 404 -
+2026-04-08 15:16:24,230 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:24] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:16:24,245 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:24] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:16:34,212 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:34] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:16:44,274 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:44] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:16:54,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:54] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:16:54,277 [INFO] 127.0.0.1 - - [08/Apr/2026 15:16:54] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:17:04,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:17:04] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:17:14,280 [INFO] 127.0.0.1 - - [08/Apr/2026 15:17:14] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:17:24,270 [INFO] 127.0.0.1 - - [08/Apr/2026 15:17:24] "GET /api/unread-count HTTP/1.1" 200 -
+2026-04-08 15:17:24,276 [INFO] 127.0.0.1 - - [08/Apr/2026 15:17:24] "GET /api/unread-count HTTP/1.1" 200 -

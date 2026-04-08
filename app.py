@@ -1104,6 +1104,7 @@ def send_email_to_user(user_id, listing_id):
     destinataire = User.query.get_or_404(user_id)
     annonce = Listing.query.get_or_404(listing_id)
     
+    sender_email = request.form.get('sender_email', current_user.email)
     subject = request.form.get('subject', '')
     message = request.form.get('message', '')
     
@@ -1111,48 +1112,84 @@ def send_email_to_user(user_id, listing_id):
         flash("Veuillez remplir tous les champs.", "danger")
         return redirect(url_for('listing_detail', listing_id=listing_id))
     
+    if not sender_email:
+        sender_email = current_user.email if current_user.email else "non-renseigné@i-home.sn"
+    
+    # Créer ou récupérer la conversation
+    conversation = Conversation.query.filter_by(listing_id=annonce.id, owner_id=annonce.user_id, tenant_id=current_user.id).first()
+    if not conversation:
+        conversation = Conversation(
+            listing_id=annonce.id,
+            owner_id=annonce.user_id,
+            tenant_id=current_user.id
+        )
+        db.session.add(conversation)
+        db.session.commit()
+    
+    # Ajouter un message automatique dans la conversation
+    auto_message = Message(
+        conversation_id=conversation.id,
+        sender_id=current_user.id,
+        content=f"[Email envoyé] {message[:200]}..."
+    )
+    db.session.add(auto_message)
+    conversation.last_message = auto_message.content[:100]
+    conversation.last_message_date = datetime.utcnow()
+    db.session.commit()
+    
     if destinataire.email:
+        # URL directe vers la conversation
+        conversation_url = url_for('chat', conversation_id=conversation.id, _external=True)
+        
         body_destinataire = f"""
         <html>
-        <head><style>body{{font-family:Arial,sans-serif;}}.container{{max-width:600px;margin:0 auto;padding:20px;}}.header{{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:white;padding:20px;text-align:center;border-radius:10px 10px 0 0;}}.content{{padding:20px;background:#f9fafb;}}.footer{{text-align:center;padding:15px;font-size:12px;color:gray;}}.button{{background:#2563eb;color:white;padding:10px 20px;text-decoration:none;border-radius:50px;}}.info{{background:#e0e7ff;padding:10px;border-radius:10px;margin:15px 0;}}</style></head>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }}
+                .content {{ padding: 20px; background: #f9fafb; }}
+                .footer {{ text-align: center; padding: 15px; font-size: 12px; color: gray; }}
+                .button {{ background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 50px; }}
+                .info {{ background: #e0e7ff; padding: 10px; border-radius: 10px; margin: 15px 0; }}
+            </style>
+        </head>
         <body>
             <div class="container">
-                <div class="header"><h2>📬 Nouveau message I-HOME</h2></div>
+                <div class="header">
+                    <h2>📬 Nouveau message I-HOME</h2>
+                </div>
                 <div class="content">
-                    <p><strong>👤 De :</strong> {current_user.username}</p>
+                    <p><strong>👤 De :</strong> {current_user.username} (<a href="mailto:{sender_email}">{sender_email}</a>)</p>
                     <p><strong>🏠 Annonce :</strong> <a href="{url_for('listing_detail', listing_id=annonce.id, _external=True)}">{annonce.title}</a></p>
                     <p><strong>📝 Objet :</strong> {subject}</p>
-                    <div class="info"><strong>💬 Message :</strong><br>{message.replace(chr(10), '<br>')}</div>
-                    <p><a href="{url_for('start_conversation', listing_id=annonce.id, _external=True)}" class="button">📱 Répondre sur I-HOME</a></p>
+                    <div class="info">
+                        <strong>💬 Message :</strong><br>
+                        {message.replace(chr(10), '<br>')}
+                    </div>
+                    <p>Vous pouvez répondre directement à : <a href="mailto:{sender_email}">{sender_email}</a></p>
+                    <p style="margin-top: 20px;">
+                        <a href="{conversation_url}" class="button" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 50px; display: inline-block;">
+                            📱 Répondre sur I-HOME
+                        </a>
+                    </p>
+                    <p style="margin-top: 10px; font-size: 12px; color: gray;">
+                        🔗 Ou copiez ce lien : {conversation_url}
+                    </p>
                 </div>
-                <div class="footer"><p>I-HOME - Plateforme immobilière du Sénégal</p></div>
+                <div class="footer">
+                    <p>I-HOME - Plateforme immobilière du Sénégal</p>
+                    <p>Ce message vous a été envoyé via la plateforme I-HOME.</p>
+                </div>
             </div>
         </body>
         </html>
         """
         send_email_notification(destinataire.email, subject, body_destinataire)
+        flash("✅ Votre message a été envoyé avec succès !", "success")
+    else:
+        flash("❌ Le destinataire n'a pas d'email renseigné.", "danger")
     
-    if current_user.email:
-        body_expediteur = f"""
-        <html>
-        <head><style>body{{font-family:Arial,sans-serif;}}.container{{max-width:600px;margin:0 auto;padding:20px;}}.header{{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:white;padding:20px;text-align:center;border-radius:10px 10px 0 0;}}.content{{padding:20px;background:#f9fafb;}}.footer{{text-align:center;padding:15px;font-size:12px;color:gray;}}</style></head>
-        <body>
-            <div class="container">
-                <div class="header"><h2>✅ Copie de votre message</h2></div>
-                <div class="content">
-                    <p><strong>👤 Destinataire :</strong> {destinataire.username}</p>
-                    <p><strong>🏠 Annonce :</strong> {annonce.title}</p>
-                    <p><strong>📝 Objet :</strong> {subject}</p>
-                    <div style="background:#f0f0f0;padding:15px;border-radius:10px;">{message.replace(chr(10), '<br>')}</div>
-                </div>
-                <div class="footer"><p>I-HOME - Plateforme immobilière du Sénégal</p></div>
-            </div>
-        </body>
-        </html>
-        """
-        send_email_notification(current_user.email, f"Copie : {subject}", body_expediteur)
-    
-    flash("✅ Votre message a été envoyé avec succès !", "success")
     return redirect(url_for('listing_detail', listing_id=listing_id))
 
 # ====================== ROUTES ANNONCES PRISES ======================
