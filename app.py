@@ -204,16 +204,16 @@ def create_wave_payment(amount, phone_number, listing_id):
         return {'success': False, 'error': str(e)}
 
 def send_email_notification(to_email, subject, body_html):
-    """Envoie un email HTML"""
     try:
-        smtp_server = "smtp.gmail.com"
-        smtp_port = 587
         smtp_user = os.environ.get('EMAIL_USER', '')
         smtp_password = os.environ.get('EMAIL_PASSWORD', '')
         
         if not smtp_user or not smtp_password:
-            logger.warning("Email non configuré")
+            print("❌ Email non configuré")
             return False
+        
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
         
         msg = MIMEMultipart()
         msg['From'] = smtp_user
@@ -226,11 +226,13 @@ def send_email_notification(to_email, subject, body_html):
         server.login(smtp_user, smtp_password)
         server.send_message(msg)
         server.quit()
+        
+        print(f"✅ Email envoyé à {to_email}")
         return True
     except Exception as e:
-        logger.error(f"Erreur email: {e}")
+        print(f"❌ Erreur: {e}")
         return False
-
+    
 # ====================== ROUTES PRINCIPALES ======================
 
 @app.route('/')
@@ -286,7 +288,7 @@ def register():
             flash("Cet email est déjà utilisé.", "danger")
             return redirect(url_for('register'))
         
-        # Si tout est valide, créer l'utilisateur
+        # ========== CRÉATION DE L'UTILISATEUR ==========
         new_user = User(
             username=username,
             email=email,
@@ -299,14 +301,22 @@ def register():
         db.session.commit()
         
         logger.info(f"Nouvel utilisateur inscrit: {username} ({user_type}) - IP: {request.remote_addr}")
-        flash("Compte créé avec succès ! Veuillez compléter votre profil.", "success")
         
+        # ========== CONNEXION AUTOMATIQUE ==========
         login_user(new_user)
         session['can_publish'] = new_user.can_publish
         session['is_broker'] = new_user.is_broker
         session['is_owner'] = new_user.is_owner
         
-        return redirect(url_for('profile'))
+        # ========== REDIRECTION SELON LE RÔLE ==========
+        if new_user.can_publish:
+            # Propriétaire ou courtier → compléter le profil
+            flash("Compte créé avec succès ! Veuillez compléter votre profil.", "success")
+            return redirect(url_for('profile'))
+        else:
+            # Locataire → directement vers les annonces
+            flash("Compte créé avec succès ! Vous pouvez maintenant consulter les annonces.", "success")
+            return redirect(url_for('listings'))
     
     return render_template('register.html')
 
@@ -405,7 +415,7 @@ def reset_password(token):
 @login_required
 def profile():
     if not current_user.can_publish:
-        flash("Les locataires n'ont pas besoin de profil.", "info")
+        # Rediriger silencieusement sans message
         return redirect(url_for('listings'))
     
     profil_complet = current_user.phone_number and current_user.email
