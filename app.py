@@ -743,48 +743,6 @@ def privacy_consent():
         db.session.commit()
     return jsonify({'status': 'ok'})
 
-# ====================== ROUTES ADMIN TEMPORAIRES ======================
-
-@app.route('/create-admin-now')
-def create_admin_now():
-    from werkzeug.security import generate_password_hash
-    
-    with app.app_context():
-        admin = User.query.filter_by(username='admin').first()
-        
-        if admin:
-            return f"""
-            <div style="text-align: center; padding: 50px;">
-                <h2>⚠️ Admin existe déjà</h2>
-                <p>Nom d'utilisateur: <strong>{admin.username}</strong></p>
-                <p>Email: <strong>{admin.email}</strong></p>
-                <a href="/login">🔑 Se connecter</a>
-            </div>
-            """
-        else:
-            new_admin = User(
-                username='admin',
-                email='admin@i-home.sn',
-                password=generate_password_hash('Admin123!'),
-                is_owner=True,
-                is_broker=False,
-                phone_number='+221 71 150 42 43'
-            )
-            db.session.add(new_admin)
-            db.session.commit()
-            
-            return f"""
-            <div style="text-align: center; padding: 50px; background: #d4fc79;">
-                <h2 style="color: green;">✅ Admin créé avec succès !</h2>
-                <p><strong>👤 Nom d'utilisateur :</strong> admin</p>
-                <p><strong>🔑 Mot de passe :</strong> Admin123!</p>
-                <p><strong>📧 Email :</strong> admin@i-home.sn</p>
-                <a href="/login" style="background: blue; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                    🔑 Se connecter
-                </a>
-            </div>
-            """
-
 @app.route('/admin/dashboard')
 @login_required
 def admin_dashboard():
@@ -830,12 +788,6 @@ def view_logs():
         return render_template('logs.html', logs=logs)
     except:
         return render_template('logs.html', logs=["Aucun log disponible"])
-
-@app.route('/init-db')
-def init_db():
-    with app.app_context():
-        db.create_all()
-    return "✅ Tables créées dans la base de données !"
 
 # ====================== MESSAGERIE ======================
 
