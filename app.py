@@ -791,6 +791,31 @@ def view_logs():
 
 # ====================== MESSAGERIE ======================
 
+@app.route('/admin/delete-all-listings')
+@login_required
+def delete_all_listings():
+    if current_user.username != 'admin':
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('index'))
+    
+    # Compter avant suppression
+    count = Listing.query.count()
+    
+    # Supprimer d'abord les favoris liés
+    Favorite.query.delete()
+    
+    # Supprimer les messages et conversations liés
+    Message.query.delete()
+    Conversation.query.delete()
+    
+    # Supprimer toutes les annonces
+    Listing.query.delete()
+    
+    db.session.commit()
+    
+    flash(f"✅ {count} annonces et toutes les données associées ont été supprimées !", "success")
+    return redirect(url_for('admin_dashboard'))
+
 @app.route('/start-conversation/<int:listing_id>')
 @login_required
 def start_conversation(listing_id):
