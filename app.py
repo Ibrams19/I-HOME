@@ -52,16 +52,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Base de données
-database_url = os.environ.get('DATABASE_URL')
-if database_url:
-    if database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-    logger.info("✅ Connexion à PostgreSQL (mode production)")
+# ==================== BASE DE DONNÉES (CORRIGÉE) ====================
+# Détection de l'environnement Render
+is_render = os.environ.get('RENDER') == 'true' or os.environ.get('DATABASE_URL') is not None
+
+if is_render:
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+        logger.info("✅ Connexion à PostgreSQL (mode production sur Render)")
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+        logger.warning("⚠️ Render détecté mais DATABASE_URL manquante, utilisation SQLite")
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-    logger.info("⚠️ Mode développement : utilisation de SQLite locale")
+    logger.info("⚠️ Mode développement local : utilisation de SQLite")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -179,8 +186,10 @@ class Message(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Création des tables avec contexte d'application
 with app.app_context():
     db.create_all()
+    logger.info("✅ Tables de la base de données vérifiées/créées")
 
 # ====================== FONCTIONS ======================
 
@@ -311,7 +320,6 @@ def login():
             flash("Veuillez entrer votre nom d'utilisateur/email et votre mot de passe.", "danger")
             return redirect(url_for('login'))
         
-        # Chercher par nom d'utilisateur OU par email
         user = User.query.filter(
             (User.username == username_or_email) | (User.email == username_or_email)
         ).first()
@@ -337,6 +345,27 @@ def login():
             return redirect(url_for('login'))
     
     return render_template('login.html')
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            token = secrets.token_urlsafe(32)
+            user.reset_token = token
+            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=24)
+            db.session.commit()
+            reset_link = url_for('reset_password', token=token, _external=True)
+            flash("Un email de réinitialisation a été envoyé.", "success")
+            flash(f"Lien de test : {reset_link}", "info")
+        else:
+            flash("Aucun compte associé à cet email.", "danger")
+        
+        return redirect(url_for('login'))
+    
+    return render_template('forgot_password.html')
 
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -369,7 +398,6 @@ def reset_password(token):
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    # Pour les propriétaires et courtiers : formulaire complet
     if current_user.can_publish:
         profil_complet = current_user.phone_number and current_user.email
         
@@ -398,10 +426,8 @@ def profile():
         
         return render_template('profile.html', user=current_user, profil_complet=profil_complet)
     
-    # Pour les locataires : page simplifiée pour changer le mot de passe uniquement
     else:
         if request.method == 'POST':
-            # Changement de mot de passe pour locataire
             current_password = request.form.get('current_password', '')
             new_password = request.form.get('new_password', '')
             confirm_password = request.form.get('confirm_password', '')
@@ -428,86 +454,6 @@ def profile():
             return redirect(url_for('profile'))
         
         return render_template('tenant_profile.html', user=current_user)
-
-@app.route('/admin/dashboard')
-@login_required
-def admin_dashboard():
-    if current_user.username != 'admin':
-        flash("Accès non autorisé.", "danger")
-        return redirect(url_for('index'))
-    
-    # Statistiques
-    total_users = User.query.count()
-    total_listings = Listing.query.count()
-    active_listings = Listing.query.filter_by(is_active=True, is_taken=False).count()
-    total_messages = Message.query.count()
-    total_conversations = Conversation.query.count()
-    
-    # Derniers utilisateurs
-    recent_users = User.query.order_by(User.id.desc()).limit(10).all()
-    
-    # Dernières annonces
-    recent_listings = Listing.query.order_by(Listing.date_posted.desc()).limit(10).all()
-    
-    # Utilisateurs par type
-    owners_count = User.query.filter_by(is_owner=True).count()
-    brokers_count = User.query.filter_by(is_broker=True).count()
-    tenants_count = User.query.filter_by(is_owner=False, is_broker=False).count()
-    
-    return render_template('admin_dashboard.html',
-                          total_users=total_users,
-                          total_listings=total_listings,
-                          active_listings=active_listings,
-                          total_messages=total_messages,
-                          total_conversations=total_conversations,
-                          recent_users=recent_users,
-                          recent_listings=recent_listings,
-                          owners_count=owners_count,
-                          brokers_count=brokers_count,
-                          tenants_count=tenants_count)
-
-@app.route('/create-admin-now')
-def create_admin_now():
-    from werkzeug.security import generate_password_hash
-    
-    with app.app_context():
-        # Vérifier si l'admin existe déjà
-        admin = User.query.filter_by(username='admin').first()
-        
-        if admin:
-            return f"""
-            <div style="text-align: center; padding: 50px;">
-                <h2>⚠️ Admin existe déjà</h2>
-                <p>Nom d'utilisateur: <strong>{admin.username}</strong></p>
-                <p>Email: <strong>{admin.email}</strong></p>
-                <p>Mot de passe: <strong>Admin123!</strong> (par défaut)</p>
-                <a href="/login">🔑 Se connecter</a>
-            </div>
-            """
-        else:
-            # Créer l'admin
-            new_admin = User(
-                username='admin',
-                email='admin@i-home.sn',
-                password=generate_password_hash('Admin123!'),
-                is_owner=True,
-                is_broker=False,
-                phone_number='+221 71 150 42 43'
-            )
-            db.session.add(new_admin)
-            db.session.commit()
-            
-            return f"""
-            <div style="text-align: center; padding: 50px; background: #d4fc79;">
-                <h2 style="color: green;">✅ Admin créé avec succès !</h2>
-                <p><strong>👤 Nom d'utilisateur :</strong> admin</p>
-                <p><strong>🔑 Mot de passe :</strong> Admin123!</p>
-                <p><strong>📧 Email :</strong> admin@i-home.sn</p>
-                <a href="/login" style="background: blue; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                    🔑 Se connecter
-                </a>
-            </div>
-            """
 
 @app.route('/change-password', methods=['POST'])
 @login_required
@@ -536,27 +482,6 @@ def change_password():
     db.session.commit()
     flash("✅ Votre mot de passe a été modifié avec succès.", "success")
     return redirect(url_for('profile'))
-
-@app.route('/forgot-password', methods=['GET', 'POST'])
-def forgot_password():
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip()
-        user = User.query.filter_by(email=email).first()
-        
-        if user:
-            token = secrets.token_urlsafe(32)
-            user.reset_token = token
-            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=24)
-            db.session.commit()
-            reset_link = url_for('reset_password', token=token, _external=True)
-            flash("Un email de réinitialisation a été envoyé.", "success")
-            flash(f"Lien de test : {reset_link}", "info")
-        else:
-            flash("Aucun compte associé à cet email.", "danger")
-        
-        return redirect(url_for('login'))
-    
-    return render_template('forgot_password.html')
 
 @app.route('/logout')
 @login_required
@@ -610,7 +535,6 @@ def publish():
         
         images_str = ','.join(images_list) if images_list else None
 
-        # Phase de lancement : TOUTES les annonces sont gratuites
         new_listing = Listing(
             user_id=current_user.id,
             title=title,
@@ -624,8 +548,8 @@ def publish():
             images=images_str,
             lat=lat,
             lng=lng,
-            is_paid=True,      # Gratuit pendant le lancement
-            is_active=True,    # Directement actif
+            is_paid=True,
+            is_active=True,
             is_free_global=True
         )
         db.session.add(new_listing)
@@ -635,95 +559,6 @@ def publish():
         return redirect(url_for('listing_detail', listing_id=new_listing.id))
         
     return render_template('publish.html')
-
-@app.route('/manual-payment/<int:listing_id>')
-@login_required
-def manual_payment(listing_id):
-    annonce = Listing.query.get_or_404(listing_id)
-    
-    if annonce.user_id != current_user.id:
-        flash("Non autorisé.", "danger")
-        return redirect(url_for('listings'))
-    
-    return render_template('manual_payment.html', annonce=annonce, amount=700)
-
-@app.route('/confirm-manual-payment/<int:listing_id>', methods=['POST'])
-@login_required
-def confirm_manual_payment(listing_id):
-    annonce = Listing.query.get_or_404(listing_id)
-    
-    if annonce.user_id != current_user.id:
-        flash("Non autorisé.", "danger")
-        return redirect(url_for('listings'))
-    
-    # Créer une notification pour l'admin
-    admin = User.query.filter_by(username='admin').first()
-    if admin:
-        notification = Notification(
-            user_id=admin.id,
-            title="💰 Nouveau paiement manuel à vérifier",
-            message=f"{current_user.username} a signalé un paiement pour l'annonce '{annonce.title}'",
-            link=url_for('listing_detail', listing_id=annonce.id)
-        )
-        db.session.add(notification)
-        db.session.commit()
-    
-    flash("✅ Merci ! Nous avons bien reçu votre demande. Votre annonce sera activée après vérification du paiement (24h max).", "success")
-    return redirect(url_for('my_listings'))
-
-@app.route('/payment/<int:listing_id>', methods=['GET', 'POST'])
-@login_required
-def payment_page(listing_id):
-    annonce = Listing.query.get_or_404(listing_id)
-    
-    if annonce.user_id != current_user.id:
-        flash("Vous n'êtes pas autorisé.", "danger")
-        return redirect(url_for('listings'))
-    
-    if annonce.is_paid and annonce.is_active:
-        flash("Cette annonce est déjà en ligne.", "info")
-        return redirect(url_for('listing_detail', listing_id=annonce.id))
-    
-    if request.method == 'POST':
-        phone_number = request.form.get('phone_number')
-        if not phone_number:
-            flash("Veuillez entrer votre numéro Wave.", "danger")
-            return redirect(url_for('payment_page', listing_id=listing_id))
-        
-        result = create_wave_payment(700, phone_number, listing_id)
-        if result['success']:
-            annonce.payment_id = result['payment_id']
-            db.session.commit()
-            return redirect(url_for('payment_pending', listing_id=listing_id, payment_id=result['payment_id']))
-        else:
-            flash("Erreur lors du paiement.", "danger")
-    
-    return render_template('payment.html', annonce=annonce, amount=700)
-
-@app.route('/payment/pending/<int:listing_id>/<payment_id>')
-def payment_pending(listing_id, payment_id):
-    annonce = Listing.query.get_or_404(listing_id)
-    return render_template('payment_pending.html', annonce=annonce, payment_id=payment_id)
-
-@app.route('/payment/simulate/<int:listing_id>')
-@login_required
-def simulate_payment(listing_id):
-    annonce = Listing.query.get_or_404(listing_id)
-    if annonce.user_id != current_user.id:
-        flash("Non autorisé.", "danger")
-        return redirect(url_for('listings'))
-    
-    annonce.is_paid = True
-    annonce.is_active = True
-    annonce.payment_date = datetime.utcnow()
-    db.session.commit()
-    flash("✅ (SIMULATION) Paiement confirmé ! Votre annonce est en ligne.", "success")
-    return redirect(url_for('listing_detail', listing_id=annonce.id))
-
-@app.route('/payment/check/<int:listing_id>')
-def payment_check(listing_id):
-    annonce = Listing.query.get_or_404(listing_id)
-    return jsonify({'status': 'completed' if annonce.is_paid and annonce.is_active else 'pending'})
 
 @app.route('/my-listings')
 @login_required
@@ -746,7 +581,6 @@ def subscription():
         flash("Accès réservé aux propriétaires et courtiers.", "danger")
         return redirect(url_for('index'))
     
-    # Phase de lancement : tout est gratuit, pas de compteur d'annonces
     return render_template('subscription.html', user=current_user)
 
 @app.route('/subscribe/<plan>', methods=['POST'])
@@ -755,7 +589,6 @@ def subscribe(plan):
     if not current_user.can_publish:
         return jsonify({'error': 'Non autorisé'}), 403
     
-    # Phase de lancement : abonnements désactivés
     flash("🎉 Phase de lancement : tous les services sont GRATUITS ! Les abonnements seront disponibles prochainement.", "info")
     return redirect(url_for('subscription'))
 
@@ -797,7 +630,7 @@ def listings():
     def get_priority(listing):
         user = listing.auteur
         if user.subscription_type == 'pro' or user.subscription_type == 'annual':
-            return 0  # Plus haute priorité (Pro et Annuel)
+            return 0
         elif user.subscription_type == 'premium':
             return 1
         elif user.subscription_type == 'basic':
@@ -828,41 +661,21 @@ def listings():
 
 @app.route('/listings/type/<type>')
 def listings_by_type(type):
-    if type == 'appartement':
-        property_types = ['appartement']
-        title = "Appartements"
-        icon = "fa-building"
-    elif type == 'appartement_meuble':
-        property_types = ['appartement_meuble']
-        title = "Appartements meublés"
-        icon = "fa-building"
-    elif type == 'chambre':
-        property_types = ['chambre']
-        title = "Chambres simples"
-        icon = "fa-bed"
-    elif type == 'chambre_meublee':
-        property_types = ['chambre_meublee']
-        title = "Chambres meublées"
-        icon = "fa-bed"
-    elif type == 'studio':
-        property_types = ['studio']
-        title = "Studios"
-        icon = "fa-city"
-    elif type == 'studio_meuble':
-        property_types = ['studio_meuble']
-        title = "Studios meublés"
-        icon = "fa-city"
-    elif type == 'magasin':
-        property_types = ['magasin']
-        title = "Magasins"
-        icon = "fa-store"
-    elif type == 'depot':
-        property_types = ['depot']
-        title = "Dépôts / Entrepôts"
-        icon = "fa-warehouse"
-    else:
+    types_map = {
+        'appartement': (['appartement'], "Appartements", "fa-building"),
+        'appartement_meuble': (['appartement_meuble'], "Appartements meublés", "fa-building"),
+        'chambre': (['chambre'], "Chambres simples", "fa-bed"),
+        'chambre_meublee': (['chambre_meublee'], "Chambres meublées", "fa-bed"),
+        'studio': (['studio'], "Studios", "fa-city"),
+        'studio_meuble': (['studio_meuble'], "Studios meublés", "fa-city"),
+        'magasin': (['magasin'], "Magasins", "fa-store"),
+        'depot': (['depot'], "Dépôts / Entrepôts", "fa-warehouse"),
+    }
+    
+    if type not in types_map:
         return redirect(url_for('listings'))
     
+    property_types, title, icon = types_map[type]
     query = Listing.query.filter_by(is_active=True, is_taken=False)
     query = query.filter(Listing.property_type.in_(property_types))
     annonces = query.order_by(Listing.date_posted.desc()).all()
@@ -900,10 +713,6 @@ def favorites():
     favorites = Favorite.query.filter_by(user_id=current_user.id).order_by(Favorite.created_at.desc()).all()
     return render_template('favorites.html', favorites=favorites)
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
 @app.route('/cgu')
 def cgu():
     now = datetime.utcnow()
@@ -933,6 +742,100 @@ def privacy_consent():
         current_user.privacy_accepted_date = datetime.utcnow()
         db.session.commit()
     return jsonify({'status': 'ok'})
+
+# ====================== ROUTES ADMIN TEMPORAIRES ======================
+
+@app.route('/create-admin-now')
+def create_admin_now():
+    from werkzeug.security import generate_password_hash
+    
+    with app.app_context():
+        admin = User.query.filter_by(username='admin').first()
+        
+        if admin:
+            return f"""
+            <div style="text-align: center; padding: 50px;">
+                <h2>⚠️ Admin existe déjà</h2>
+                <p>Nom d'utilisateur: <strong>{admin.username}</strong></p>
+                <p>Email: <strong>{admin.email}</strong></p>
+                <a href="/login">🔑 Se connecter</a>
+            </div>
+            """
+        else:
+            new_admin = User(
+                username='admin',
+                email='admin@i-home.sn',
+                password=generate_password_hash('Admin123!'),
+                is_owner=True,
+                is_broker=False,
+                phone_number='+221 71 150 42 43'
+            )
+            db.session.add(new_admin)
+            db.session.commit()
+            
+            return f"""
+            <div style="text-align: center; padding: 50px; background: #d4fc79;">
+                <h2 style="color: green;">✅ Admin créé avec succès !</h2>
+                <p><strong>👤 Nom d'utilisateur :</strong> admin</p>
+                <p><strong>🔑 Mot de passe :</strong> Admin123!</p>
+                <p><strong>📧 Email :</strong> admin@i-home.sn</p>
+                <a href="/login" style="background: blue; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                    🔑 Se connecter
+                </a>
+            </div>
+            """
+
+@app.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    if current_user.username != 'admin':
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('index'))
+    
+    total_users = User.query.count()
+    total_listings = Listing.query.count()
+    active_listings = Listing.query.filter_by(is_active=True, is_taken=False).count()
+    total_messages = Message.query.count()
+    total_conversations = Conversation.query.count()
+    
+    recent_users = User.query.order_by(User.id.desc()).limit(10).all()
+    recent_listings = Listing.query.order_by(Listing.date_posted.desc()).limit(10).all()
+    
+    owners_count = User.query.filter_by(is_owner=True).count()
+    brokers_count = User.query.filter_by(is_broker=True).count()
+    tenants_count = User.query.filter_by(is_owner=False, is_broker=False).count()
+    
+    return render_template('admin_dashboard.html',
+                          total_users=total_users,
+                          total_listings=total_listings,
+                          active_listings=active_listings,
+                          total_messages=total_messages,
+                          total_conversations=total_conversations,
+                          recent_users=recent_users,
+                          recent_listings=recent_listings,
+                          owners_count=owners_count,
+                          brokers_count=brokers_count,
+                          tenants_count=tenants_count)
+
+@app.route('/admin/logs')
+@login_required
+def view_logs():
+    if current_user.username != 'admin':
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('index'))
+    
+    try:
+        with open('logs/app.log', 'r', encoding='utf-8') as f:
+            logs = f.read().split('\n')[-100:]
+        return render_template('logs.html', logs=logs)
+    except:
+        return render_template('logs.html', logs=["Aucun log disponible"])
+
+@app.route('/init-db')
+def init_db():
+    with app.app_context():
+        db.create_all()
+    return "✅ Tables créées dans la base de données !"
 
 # ====================== MESSAGERIE ======================
 
@@ -1247,19 +1150,95 @@ def log_response_info(response):
         logger.warning(f"Réponse {response.status_code} sur {request.endpoint}")
     return response
 
-@app.route('/admin/logs')
+# ====================== ROUTES PAIEMENT (SIMPLIFIÉES) ======================
+
+@app.route('/manual-payment/<int:listing_id>')
 @login_required
-def view_logs():
-    if current_user.username != 'admin':
-        flash("Accès non autorisé.", "danger")
-        return redirect(url_for('index'))
+def manual_payment(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
     
-    try:
-        with open('logs/app.log', 'r', encoding='utf-8') as f:
-            logs = f.read().split('\n')[-100:]
-        return render_template('logs.html', logs=logs)
-    except:
-        return render_template('logs.html', logs=["Aucun log disponible"])
+    if annonce.user_id != current_user.id:
+        flash("Non autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    return render_template('manual_payment.html', annonce=annonce, amount=700)
+
+@app.route('/confirm-manual-payment/<int:listing_id>', methods=['POST'])
+@login_required
+def confirm_manual_payment(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    
+    if annonce.user_id != current_user.id:
+        flash("Non autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    admin = User.query.filter_by(username='admin').first()
+    if admin:
+        notification = Notification(
+            user_id=admin.id,
+            title="💰 Nouveau paiement manuel à vérifier",
+            message=f"{current_user.username} a signalé un paiement pour l'annonce '{annonce.title}'",
+            link=url_for('listing_detail', listing_id=annonce.id)
+        )
+        db.session.add(notification)
+        db.session.commit()
+    
+    flash("✅ Merci ! Nous avons bien reçu votre demande. Votre annonce sera activée après vérification du paiement (24h max).", "success")
+    return redirect(url_for('my_listings'))
+
+@app.route('/payment/<int:listing_id>', methods=['GET', 'POST'])
+@login_required
+def payment_page(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    
+    if annonce.user_id != current_user.id:
+        flash("Vous n'êtes pas autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    if annonce.is_paid and annonce.is_active:
+        flash("Cette annonce est déjà en ligne.", "info")
+        return redirect(url_for('listing_detail', listing_id=annonce.id))
+    
+    if request.method == 'POST':
+        phone_number = request.form.get('phone_number')
+        if not phone_number:
+            flash("Veuillez entrer votre numéro Wave.", "danger")
+            return redirect(url_for('payment_page', listing_id=listing_id))
+        
+        result = create_wave_payment(700, phone_number, listing_id)
+        if result['success']:
+            annonce.payment_id = result['payment_id']
+            db.session.commit()
+            return redirect(url_for('payment_pending', listing_id=listing_id, payment_id=result['payment_id']))
+        else:
+            flash("Erreur lors du paiement.", "danger")
+    
+    return render_template('payment.html', annonce=annonce, amount=700)
+
+@app.route('/payment/pending/<int:listing_id>/<payment_id>')
+def payment_pending(listing_id, payment_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    return render_template('payment_pending.html', annonce=annonce, payment_id=payment_id)
+
+@app.route('/payment/simulate/<int:listing_id>')
+@login_required
+def simulate_payment(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    if annonce.user_id != current_user.id:
+        flash("Non autorisé.", "danger")
+        return redirect(url_for('listings'))
+    
+    annonce.is_paid = True
+    annonce.is_active = True
+    annonce.payment_date = datetime.utcnow()
+    db.session.commit()
+    flash("✅ (SIMULATION) Paiement confirmé ! Votre annonce est en ligne.", "success")
+    return redirect(url_for('listing_detail', listing_id=annonce.id))
+
+@app.route('/payment/check/<int:listing_id>')
+def payment_check(listing_id):
+    annonce = Listing.query.get_or_404(listing_id)
+    return jsonify({'status': 'completed' if annonce.is_paid and annonce.is_active else 'pending'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
