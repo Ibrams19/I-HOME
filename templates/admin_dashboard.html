@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="fw-bold mb-4">
+        <i class="fas fa-chart-line text-primary me-2"></i>Tableau de bord Admin
+    </h1>
+    
+    <!-- Cartes statistiques -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-primary bg-opacity-10">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Utilisateurs</small>
+                            <h2 class="fw-bold mb-0">{{ total_users }}</h2>
+                        </div>
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-success bg-opacity-10">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Annonces totales</small>
+                            <h2 class="fw-bold mb-0">{{ total_listings }}</h2>
+                        </div>
+                        <i class="fas fa-home fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-warning bg-opacity-10">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Annonces actives</small>
+                            <h2 class="fw-bold mb-0">{{ active_listings }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-info bg-opacity-10">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Messages</small>
+                            <h2 class="fw-bold mb-0">{{ total_messages }}</h2>
+                        </div>
+                        <i class="fas fa-comments fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Répartition des utilisateurs -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <h5 class="fw-bold"><i class="fas fa-chart-pie me-2"></i>Types d'utilisateurs</h5>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2">
+                            <span class="badge bg-success">Propriétaires</span>
+                            <span class="float-end fw-bold">{{ owners_count }}</span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-info">Courtiers</span>
+                            <span class="float-end fw-bold">{{ brokers_count }}</span>
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-secondary">Locataires</span>
+                            <span class="float-end fw-bold">{{ tenants_count }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <h5 class="fw-bold"><i class="fas fa-clock me-2"></i>Derniers utilisateurs inscrits</h5>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr><th>Username</th><th>Email</th><th>Type</th><th>ID</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email or '-' }}</td>
+                                    <td>
+                                        {% if user.is_owner %}🏠 Propriétaire
+                                        {% elif user.is_broker %}📋 Courtier
+                                        {% else %}👤 Locataire{% endif %}
+                                    </td>
+                                    <td><small>{{ user.id }}</small></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dernières annonces -->
+    <div class="card border-0 shadow-sm rounded-4 mb-5">
+        <div class="card-body">
+            <h5 class="fw-bold"><i class="fas fa-newspaper me-2"></i>Dernières annonces</h5>
+            <div class="table-responsive mt-3">
+                <table class="table table-sm">
+                    <thead>
+                        <tr><th>Titre</th><th>Auteur</th><th>Prix</th><th>Statut</th><th>Vues</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for listing in recent_listings %}
+                        <tr>
+                            <td>{{ listing.title[:30] }}</td>
+                            <td>{{ listing.auteur.username }}</td>
+                            <td>{{ "{:,.0f}".format(listing.price) }} FCFA</td>
+                            <td>
+                                {% if listing.is_active %}✅ Actif{% else %}⏳ Inactif{% endif %}
+                            </td>
+                            <td>{{ listing.views }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Liens utiles -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <a href="{{ url_for('view_logs') }}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-4 bg-dark text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-terminal fa-2x mb-2"></i>
+                        <h6 class="mb-0">📋 Voir les logs</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ url_for('listings') }}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-4 bg-primary text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-home fa-2x mb-2"></i>
+                        <h6 class="mb-0">🏠 Toutes les annonces</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

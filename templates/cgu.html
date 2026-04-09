@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}CGU - Conditions Générales d'Utilisation - I-HOME{% endblock %}
+{% block title %}Conditions Générales d'Utilisation - I-HOME{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -8,122 +8,139 @@
         <div class="col-lg-10">
             <div class="card border-0 shadow-lg rounded-4">
                 <div class="card-body p-4 p-md-5">
-                    <!-- En-tête -->
                     <div class="text-center mb-4">
                         <div class="mb-3">
                             <i class="fas fa-file-contract fa-3x text-primary"></i>
                         </div>
                         <h1 class="fw-bold">Conditions Générales d'Utilisation</h1>
-                        <p class="text-muted">Dernière mise à jour : {{ now.strftime('%d/%m/%Y') if now else 'Avril 2026' }}</p>
+                        <p class="text-muted">Dernière mise à jour : 09 Avril 2026</p>
                     </div>
                     
+                    <!-- Bannière phase de lancement -->
+                    <div class="alert alert-success text-center mb-4">
+                        <i class="fas fa-gift me-2"></i>
+                        <strong>🎉 PHASE DE LANCEMENT - 100% GRATUIT</strong><br>
+                        <small>Du 09 Avril au 30 Juin 2026, la publication d'annonces est entièrement gratuite. Aucun abonnement n'est facturé pendant cette période.</small>
+                    </div>
+
                     <!-- Article 1 -->
                     <div class="mb-4">
                         <h4 class="fw-bold"><i class="fas fa-info-circle text-primary me-2"></i>Article 1 : Présentation du site</h4>
                         <p>Le site I-HOME (ci-après "le Site") est une plateforme de mise en relation entre propriétaires, courtiers immobiliers et locataires/acheteurs au Sénégal. La plateforme permet aux propriétaires et courtiers de publier des annonces immobilières et aux locataires/acheteurs de consulter ces annonces et de contacter les annonceurs.</p>
                         <p><strong>Éditeur :</strong> I-HOME SARL<br>
                         <strong>Siège social :</strong> Dakar, Sénégal<br>
-                        <strong>Email :</strong> contact@i-home.sn<br>
-                        <strong>Téléphone :</strong> +221 78 000 00 00</p>
+                        <strong>Email :</strong> ihomeservice3@gmail.com<br>
+                        <strong>Téléphone :</strong> +221 71 150 42 43<br>
+                        <strong>RCCM :</strong> En cours d'obtention<br>
+                        <strong>Directeur de publication :</strong> Ibrahim Barry</p>
                     </div>
-                    
+
                     <!-- Article 2 -->
                     <div class="mb-4">
-                        <h4 class="fw-bold"><i class="fas fa-user-check text-primary me-2"></i>Article 2 : Acceptation des CGU</h4>
+                        <h4 class="fw-bold"><i class="fas fa-check-circle text-primary me-2"></i>Article 2 : Acceptation des CGU</h4>
                         <p>L'utilisation du site I-HOME implique l'acceptation pleine et entière des présentes Conditions Générales d'Utilisation. Ces conditions sont opposables à tout utilisateur qui accède au site ou utilise ses services.</p>
-                        <p>I-HOME se réserve le droit de modifier ces CGU à tout moment. Les utilisateurs seront informés de ces modifications par email ou par notification sur le site.</p>
                     </div>
-                    
+
                     <!-- Article 3 -->
                     <div class="mb-4">
-                        <h4 class="fw-bold"><i class="fas fa-user-plus text-primary me-2"></i>Article 3 : Création de compte</h4>
-                        <p>Pour utiliser certaines fonctionnalités du site (publication d'annonces, messagerie, favoris), l'utilisateur doit créer un compte en fournissant des informations exactes et à jour :</p>
+                        <h4 class="fw-bold"><i class="fas fa-users text-primary me-2"></i>Article 3 : Types d'utilisateurs</h4>
+                        <p><strong>Trois types d'utilisateurs sont distingués :</strong></p>
                         <ul>
-                            <li>Nom d'utilisateur</li>
-                            <li>Adresse email valide</li>
-                            <li>Numéro de téléphone (WhatsApp) pour les propriétaires et courtiers</li>
+                            <li><strong>Propriétaires :</strong> Personnes physiques ou morales propriétaires d'un bien immobilier. Ils peuvent publier des annonces et gérer leurs biens.</li>
+                            <li><strong>Courtiers :</strong> Professionnels de l'immobilier mandatés pour vendre ou louer des biens. Ils peuvent publier des annonces et gérer leurs biens.</li>
+                            <li><strong>Locataires/Acheteurs :</strong> Personnes recherchant un bien immobilier. Ils peuvent consulter les annonces, contacter les annonceurs et sauvegarder des favoris.</li>
                         </ul>
-                        <p>L'utilisateur est responsable de la confidentialité de son mot de passe et de toutes les activités effectuées depuis son compte.</p>
+                        <p class="text-muted small">⚠️ Seuls les propriétaires et courtiers peuvent publier des annonces.</p>
                     </div>
-                    
+
                     <!-- Article 4 -->
                     <div class="mb-4">
-                        <h4 class="fw-bold"><i class="fas fa-home text-primary me-2"></i>Article 4 : Publication d'annonces</h4>
-                        <p>Les propriétaires et courtiers peuvent publier des annonces immobilières sous leur responsabilité. Les annonces doivent respecter les règles suivantes :</p>
+                        <h4 class="fw-bold"><i class="fas fa-credit-card text-primary me-2"></i>Article 4 : Tarification</h4>
+                        <p><strong>Phase de lancement (Avril - Juin 2026) :</strong></p>
                         <ul>
-                            <li>Les informations fournies doivent être exactes et sincères</li>
-                            <li>Les photos doivent correspondre au bien proposé</li>
-                            <li>Le prix annoncé doit être conforme à la réalité</li>
-                            <li>Les annonces frauduleuses seront supprimées sans préavis</li>
+                            <li>✅ Publication d'annonces : <strong>100% GRATUITE</strong></li>
+                            <li>✅ Messagerie : GRATUITE</li>
+                            <li>✅ Favoris : GRATUIT</li>
                         </ul>
-                        <p><strong>Tarification :</strong></p>
+                        <p><strong>À partir de Juillet 2026 :</strong></p>
                         <ul>
-                            <li>Les 100 premières annonces de la plateforme sont gratuites</li>
-                            <li>Au-delà : 1 000 FCFA par annonce ou abonnement mensuel</li>
-                            <li>Les abonnements sont disponibles : Basic (5 000 FCFA/mois), Premium (10 000 FCFA/mois), Pro (25 000 FCFA/mois)</li>
+                            <li>Formule Découverte : 700 FCFA par annonce</li>
+                            <li>Formule Basic : 5 000 FCFA/mois (15 annonces incluses)</li>
+                            <li>Formule Premium : 10 000 FCFA/mois (40 annonces incluses)</li>
+                            <li>Formule Pro : 25 000 FCFA/mois (annonces illimitées)</li>
+                            <li>Pack Annuel : 100 000 FCFA/an (200 annonces incluses)</li>
                         </ul>
+                        <p class="text-muted small">Les prix sont exprimés en Francs CFA (FCFA) et toutes taxes comprises.</p>
                     </div>
-                    
+
                     <!-- Article 5 -->
                     <div class="mb-4">
                         <h4 class="fw-bold"><i class="fas fa-shield-alt text-primary me-2"></i>Article 5 : Responsabilité</h4>
-                        <p>I-HOME agit uniquement comme plateforme de mise en relation. La responsabilité d'I-HOME ne peut être engagée en cas de :</p>
+                        <p>I-HOME agit uniquement comme plateforme de mise en relation. L'éditeur ne peut être tenu responsable :</p>
                         <ul>
-                            <li>Litige entre propriétaires/courtiers et locataires/acheteurs</li>
-                            <li>Fausses informations fournies dans les annonces</li>
-                            <li>Défaut de conformité des biens proposés</li>
-                            <li>Problèmes techniques temporaires du site</li>
+                            <li>De la véracité des annonces publiées par les utilisateurs</li>
+                            <li>Des transactions conclues directement entre utilisateurs</li>
+                            <li>Des litiges entre propriétaires/courtiers et locataires/acheteurs</li>
+                            <li>Des interruptions temporaires du service pour maintenance</li>
                         </ul>
-                        <p>I-HOME se réserve le droit de supprimer toute annonce non conforme sans préavis.</p>
+                        <p>Les utilisateurs sont seuls responsables du contenu qu'ils publient et des échanges qu'ils initient.</p>
                     </div>
-                    
+
                     <!-- Article 6 -->
                     <div class="mb-4">
-                        <h4 class="fw-bold"><i class="fas fa-credit-card text-primary me-2"></i>Article 6 : Paiements</h4>
-                        <p>Les paiements sur I-HOME s'effectuent exclusivement via Wave, Orange Money. I-HOME ne stocke aucune information bancaire.</p>
-                        <p>Les abonnements sont prélevés mensuellement ou annuellement selon la formule choisie. L'utilisateur peut résilier son abonnement à tout moment, sans remboursement de la période en cours.</p>
+                        <h4 class="fw-bold"><i class="fas fa-database text-primary me-2"></i>Article 6 : Données personnelles</h4>
+                        <p>Conformément à la loi sénégalaise n° 2008-12 du 25 janvier 2008, les utilisateurs disposent d'un droit d'accès, de rectification et de suppression de leurs données personnelles.</p>
+                        <p>Pour exercer ces droits : <strong>ihomeservice3@gmail.com</strong></p>
+                        <p>Consultez notre <a href="{{ url_for('politique_confidentialite') }}">Politique de Confidentialité</a> pour plus de détails.</p>
                     </div>
-                    
+
                     <!-- Article 7 -->
                     <div class="mb-4">
-                        <h4 class="fw-bold"><i class="fas fa-database text-primary me-2"></i>Article 7 : Protection des données</h4>
-                        <p>Conformément à la réglementation sénégalaise sur la protection des données, les informations collectées sont utilisées uniquement pour le fonctionnement du site. Les utilisateurs disposent d'un droit d'accès, de modification et de suppression de leurs données.</p>
-                        <p>Les données personnelles ne sont pas vendues à des tiers.</p>
+                        <h4 class="fw-bold"><i class="fas fa-ban text-primary me-2"></i>Article 7 : Comportements interdits</h4>
+                        <p>Est strictement interdit :</p>
+                        <ul>
+                            <li>Publier des annonces fausses, trompeuses ou illégales</li>
+                            <li>Usurper l'identité d'un tiers</li>
+                            <li>Publier des contenus offensants, discriminatoires ou violents</li>
+                            <li>Tenter de pirater ou perturber le fonctionnement du site</li>
+                            <li>Utiliser le site pour du spam ou du harcèlement</li>
+                        </ul>
+                        <p>Tout manquement peut entraîner la suspension ou la suppression du compte sans préavis.</p>
                     </div>
-                    
+
                     <!-- Article 8 -->
                     <div class="mb-4">
-                        <h4 class="fw-bold"><i class="fas fa-ban text-primary me-2"></i>Article 8 : Suspension et résiliation</h4>
-                        <p>I-HOME se réserve le droit de suspendre ou résilier un compte utilisateur en cas de :</p>
-                        <ul>
-                            <li>Non-respect des présentes CGU</li>
-                            <li>Publication d'annonces frauduleuses</li>
-                            <li>Comportement abusif envers d'autres utilisateurs</li>
-                            <li>Non-paiement des frais de publication</li>
-                        </ul>
+                        <h4 class="fw-bold"><i class="fas fa-copyright text-primary me-2"></i>Article 8 : Propriété intellectuelle</h4>
+                        <p>L'ensemble des éléments du site I-HOME (textes, images, logos, code source) sont protégés par le droit d'auteur. Toute reproduction sans autorisation est interdite.</p>
                     </div>
-                    
+
                     <!-- Article 9 -->
                     <div class="mb-4">
                         <h4 class="fw-bold"><i class="fas fa-gavel text-primary me-2"></i>Article 9 : Droit applicable</h4>
-                        <p>Les présentes CGU sont régies par le droit sénégalais. En cas de litige, une solution amiable sera recherchée avant toute action judiciaire devant les tribunaux compétents de Dakar.</p>
+                        <p>Les présentes CGU sont régies par le droit sénégalais. Tout litige sera soumis aux tribunaux compétents de Dakar, Sénégal.</p>
                     </div>
-                    
+
                     <!-- Article 10 -->
                     <div class="mb-4">
-                        <h4 class="fw-bold"><i class="fas fa-envelope text-primary me-2"></i>Article 10 : Contact</h4>
-                        <p>Pour toute question relative aux présentes CGU, vous pouvez nous contacter :</p>
+                        <h4 class="fw-bold"><i class="fas fa-edit text-primary me-2"></i>Article 10 : Modification des CGU</h4>
+                        <p>I-HOME se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés par email ou notification sur le site.</p>
+                    </div>
+
+                    <!-- Article 11 -->
+                    <div class="mb-4">
+                        <h4 class="fw-bold"><i class="fas fa-envelope text-primary me-2"></i>Article 11 : Contact</h4>
+                        <p>Pour toute question relative aux CGU :</p>
                         <ul>
-                            <li>Email : spydixix@gmail.com</li>
-                            <li>Téléphone : +221 711504243</li>
-                            <li>Adresse : Dakar, Sénégal</li>
+                            <li><strong>Email :</strong> ihomeservice3@gmail.com</li>
+                            <li><strong>Téléphone :</strong> +221 71 150 42 43</li>
+                            <li><strong>WhatsApp :</strong> +221 71 150 42 43</li>
+                            <li><strong>Adresse :</strong> Dakar, Sénégal</li>
                         </ul>
                     </div>
-                    
+
                     <hr class="my-4">
-                    
+
                     <div class="text-center">
-                        <p class="small text-muted">En utilisant I-HOME, vous acceptez nos Conditions Générales d'Utilisation.</p>
                         <a href="{{ url_for('index') }}" class="btn btn-primary rounded-pill px-4">
                             <i class="fas fa-home me-2"></i>Retour à l'accueil
                         </a>

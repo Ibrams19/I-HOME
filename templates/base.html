@@ -21,6 +21,10 @@
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 <i class="fas fa-building"></i> I-HOME
+                <!-- Badge phase de lancement -->
+                <span class="badge bg-success ms-2 px-2 py-1" style="font-size: 0.7rem; vertical-align: middle;">
+                    <i class="fas fa-gift me-1"></i>100% GRATUIT
+                </span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -68,13 +72,16 @@
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                {% if current_user.can_publish %}
+                                <!-- Profil pour TOUS les utilisateurs connectés -->
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('profile') }}">
-                                        <i class="fas fa-id-card"></i> Mon profil
+                                        <i class="fas fa-user-circle text-primary"></i> Mon profil
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
+                                
+                                <!-- Pour les propriétaires et courtiers uniquement -->
+                                {% if current_user.can_publish %}
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('publish') }}">
                                         <i class="fas fa-plus-circle text-success"></i> Publier une annonce
@@ -86,12 +93,15 @@
                                     </a>
                                 </li>
                                 {% endif %}
-                                <!-- Lien Mes favoris (pour tous les utilisateurs connectés) -->
+                                
+                                <!-- Mes favoris (pour tous) -->
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('favorites') }}">
                                         <i class="fas fa-heart text-danger"></i> Mes favoris
                                     </a>
                                 </li>
+                                
+                                <!-- Abonnements (pour propriétaires et courtiers uniquement) -->
                                 {% if current_user.can_publish %}
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('subscription') }}">
@@ -99,6 +109,22 @@
                                     </a>
                                 </li>
                                 {% endif %}
+                                
+                                <!-- Admin Dashboard (visible uniquement pour l'admin) -->
+                                {% if current_user.username == 'admin' %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                        <i class="fas fa-chart-line text-danger"></i> 📊 Admin Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('view_logs') }}">
+                                        <i class="fas fa-terminal text-warning"></i> 📋 Voir les logs
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
@@ -148,6 +174,9 @@
                 <div class="col-md-4 mb-3 mb-md-0">
                     <h6 class="fw-bold mb-2">I-HOME</h6>
                     <p class="small text-muted">Plateforme de mise en relation directe entre propriétaires, courtiers et locataires au Sénégal.</p>
+                    <span class="badge bg-success mt-2">
+                        <i class="fas fa-gift me-1"></i>Phase de lancement - 100% gratuit
+                    </span>
                 </div>
                 <div class="col-md-4 mb-3 mb-md-0">
                     <h6 class="fw-bold mb-2">Liens utiles</h6>

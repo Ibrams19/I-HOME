@@ -12,6 +12,14 @@
         <p class="text-muted">Trouvez le bien qui vous correspond</p>
     </div>
     
+    <!-- ========== BANNIÈRE PHASE DE LANCEMENT ========== -->
+    <div class="alert alert-success text-center mb-4 shadow-sm" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); border: none;">
+        <i class="fas fa-gift fa-2x me-2 text-success"></i>
+        <strong>🎉 PHASE DE LANCEMENT - 100% GRATUIT !</strong><br>
+        Toutes les annonces sont gratuites pendant cette période.<br>
+        <small>Profitez-en pour publier votre bien sans frais.</small>
+    </div>
+    
     <!-- Filtres -->
     <div class="filter-section mb-5">
         <h5 class="fw-bold mb-3"><i class="fas fa-sliders-h text-primary me-2"></i>Filtres de recherche</h5>
@@ -105,7 +113,7 @@
                                 {% else %}Chambre simple{% endif %}
                             </span>
                         </div>
-                        <!-- Badge de mise en avant selon abonnement -->
+                        <!-- Badge de mise en avant selon abonnement (conserve la logique existante) -->
                         {% if annonce.auteur.subscription_type == 'pro' %}
                         <div class="position-absolute bottom-0 end-0 m-3">
                             <span class="badge bg-danger rounded-pill">
@@ -228,7 +236,7 @@
             </a>
             {% if current_user.is_authenticated and current_user.can_publish %}
                 <a href="{{ url_for('publish') }}" class="btn btn-outline-primary rounded-pill px-4 ms-2">
-                    <i class="fas fa-plus-circle me-1"></i> Publier une annonce
+                    <i class="fas fa-plus-circle me-1"></i> Publier gratuitement
                 </a>
             {% endif %}
         </div>

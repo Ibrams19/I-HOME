@@ -1,25 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Abonnements - I-HOME{% endblock %}
-{% if not free_listings_epuisees %}
-<div class="alert alert-info text-center mb-5">
-    <i class="fas fa-gift fa-2x me-2"></i>
-    <h5 class="mb-2">🎉 Offre de lancement !</h5>
-    <p class="mb-0">Les abonnements ne sont pas encore disponibles.</p>
-    <p class="mb-0">Profitez d'abord des <strong>{{ annonces_gratuites_restantes_global }} annonces gratuites</strong> restantes sur la plateforme.</p>
-    <div class="progress mt-3" style="height: 10px; max-width: 300px; margin: 0 auto;">
-        {% set percent = ((100 - annonces_gratuites_restantes_global) * 100 / 100) | round(0) %}
-        <div class="progress-bar bg-success" style="width: {{ percent }}%"></div>
-    </div>
-    <p class="small text-muted mt-2">{{ percent }}% utilisé</p>
-</div>
-{% else %}
-<div class="alert alert-success text-center mb-5">
-    <i class="fas fa-crown fa-2x me-2"></i>
-    <h5 class="mb-2">👑 Les 100 annonces gratuites sont épuisées !</h5>
-    <p class="mb-0">Les abonnements sont maintenant disponibles. Choisissez la formule qui vous convient.</p>
-</div>
-{% endif %}
+
 {% block content %}
 <div class="container py-5">
     <!-- En-tête -->
@@ -30,28 +12,21 @@
         <h1 class="display-5 fw-bold">Choisissez votre formule</h1>
         <p class="lead text-muted">Publiez plus d'annonces et bénéficiez d'avantages exclusifs</p>
         
-        <!-- Message selon le nombre d'annonces gratuites restantes -->
-        {% if annonces_gratuites_restantes_global > 0 %}
-        <div class="alert alert-success mt-3 d-inline-block">
-            <i class="fas fa-gift me-2"></i>
-            <strong>🎉 Offre de lancement !</strong><br>
-            Il reste encore <strong>{{ annonces_gratuites_restantes_global }}</strong> annonces gratuites sur la plateforme.<br>
-            Profitez-en avant de souscrire à un abonnement !
+        <!-- ========== BANNIÈRE DE LANCEMENT GRATUIT ========== -->
+        <div class="alert alert-success mt-3 d-inline-block shadow-sm" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); border: none;">
+            <i class="fas fa-gift fa-2x me-2 text-success"></i>
+            <strong>🎉 PHASE DE LANCEMENT - 100% GRATUIT !</strong><br>
+            Profitez de toutes les fonctionnalités sans aucun frais pendant cette période.<br>
+            <small class="text-dark">Les abonnements seront disponibles prochainement.</small>
         </div>
-        {% else %}
-        <div class="alert alert-warning mt-3 d-inline-block">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>⚠️ Les 100 annonces gratuites sont épuisées !</strong><br>
-            Souscrivez un abonnement pour continuer à publier vos annonces.
-        </div>
-        {% endif %}
+        <!-- ================================================ -->
     </div>
     
     <!-- Cartes d'abonnement -->
     <div class="row g-4">
-        <!-- Offre Découverte (Gratuit) -->
+        <!-- Offre Découverte - CORRIGÉE -->
         <div class="col-lg-3 col-md-6">
-            <div class="card h-100 border-0 shadow-sm rounded-4 {% if user.subscription_type == 'free' %}border-success border-2{% endif %}">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-gift fa-3x text-success"></i>
@@ -59,17 +34,16 @@
                     <h3 class="fw-bold">Découverte</h3>
                     <p class="text-muted">Pour commencer</p>
                     <div class="my-4">
-                        <h2 class="display-5 fw-bold text-success">0 FCFA</h2>
-                        <small class="text-muted">à vie</small>
+                        <h2 class="display-5 fw-bold text-success">700 FCFA</h2>
+                        <small class="text-muted">par annonce</small>
+                    </div>
+                    <div class="bg-light rounded-3 p-2 mb-3">
+                        <span class="badge bg-secondary">🟢 Aucune mise en avant</span>
                     </div>
                     <ul class="list-unstyled text-start mt-4">
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
-                            <strong>100 premières annonces gratuites</strong>
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Annonces supplémentaires à <strong>1 000 FCFA</strong>
+                            Annonce unique à <strong>700 FCFA</strong>
                         </li>
                         <li class="mb-2 text-muted">
                             <i class="fas fa-times-circle text-danger me-2"></i>
@@ -80,24 +54,16 @@
                             <span class="text-decoration-line-through">Statistiques avancées</span>
                         </li>
                     </ul>
-                    {% if user.subscription_type == 'free' %}
-                        <button class="btn btn-success w-100 mt-3" disabled>
-                            <i class="fas fa-check"></i> Offre actuelle
-                        </button>
-                    {% else %}
-                        <form action="{{ url_for('subscribe', plan='free') }}" method="POST">
-                            <button type="submit" class="btn btn-outline-success w-100 mt-3">
-                                <i class="fas fa-arrow-right"></i> Choisir
-                            </button>
-                        </form>
-                    {% endif %}
+                    <button class="btn btn-secondary w-100 mt-3" disabled>
+                        <i class="fas fa-clock me-1"></i> Bientôt disponible
+                    </button>
                 </div>
             </div>
         </div>
         
         <!-- Offre Basic -->
         <div class="col-lg-3 col-md-6">
-            <div class="card h-100 border-0 shadow-sm rounded-4 {% if user.subscription_type == 'basic' %}border-primary border-2{% endif %}">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-star fa-3x text-primary"></i>
@@ -108,35 +74,26 @@
                         <h2 class="display-5 fw-bold text-primary">5 000 FCFA</h2>
                         <small class="text-muted">/mois</small>
                     </div>
+                    <div class="bg-light rounded-3 p-2 mb-3">
+                        <span class="badge bg-primary">⭐ Mise en avant légère</span>
+                    </div>
                     <ul class="list-unstyled text-start mt-4">
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
-                            <strong>20 annonces gratuites/mois</strong>
+                            <strong>15 annonces gratuites/mois</strong>
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
-                            Annonces supplémentaires à <strong>500 FCFA</strong>
+                            Annonces supplémentaires à <strong>600 FCFA</strong>
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
                             Support email
                         </li>
-                        <li class="mb-2 text-muted">
-                            <i class="fas fa-times-circle text-danger me-2"></i>
-                            <span class="text-decoration-line-through">Mise en avant</span>
-                        </li>
                     </ul>
-                    {% if user.subscription_type == 'basic' %}
-                        <button class="btn btn-primary w-100 mt-3" disabled>
-                            <i class="fas fa-check"></i> Actif
-                        </button>
-                    {% else %}
-                        <form action="{{ url_for('subscribe', plan='basic') }}" method="POST">
-                            <button type="submit" class="btn btn-outline-primary w-100 mt-3">
-                                <i class="fas fa-arrow-right"></i> S'abonner
-                            </button>
-                        </form>
-                    {% endif %}
+                    <button class="btn btn-secondary w-100 mt-3" disabled>
+                        <i class="fas fa-clock me-1"></i> Bientôt disponible
+                    </button>
                 </div>
             </div>
         </div>
@@ -159,42 +116,33 @@
                         <h2 class="display-5 fw-bold text-warning">10 000 FCFA</h2>
                         <small class="text-muted">/mois</small>
                     </div>
+                    <div class="bg-light rounded-3 p-2 mb-3">
+                        <span class="badge bg-warning text-dark">⭐⭐ Mise en avant forte</span>
+                    </div>
                     <ul class="list-unstyled text-start mt-4">
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
-                            <strong>50 annonces gratuites/mois</strong>
+                            <strong>40 annonces gratuites/mois</strong>
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
-                            Annonces supplémentaires à <strong>300 FCFA</strong>
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            <strong>Mise en avant prioritaire</strong> 🔥
+                            Annonces supplémentaires à <strong>400 FCFA</strong>
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
                             <strong>Statistiques avancées</strong> 📊
                         </li>
                     </ul>
-                    {% if user.subscription_type == 'premium' %}
-                        <button class="btn btn-warning w-100 mt-3" disabled>
-                            <i class="fas fa-check"></i> Actif
-                        </button>
-                    {% else %}
-                        <form action="{{ url_for('subscribe', plan='premium') }}" method="POST">
-                            <button type="submit" class="btn btn-outline-warning w-100 mt-3">
-                                <i class="fas fa-arrow-right"></i> S'abonner
-                            </button>
-                        </form>
-                    {% endif %}
+                    <button class="btn btn-secondary w-100 mt-3" disabled>
+                        <i class="fas fa-clock me-1"></i> Bientôt disponible
+                    </button>
                 </div>
             </div>
         </div>
         
         <!-- Offre Pro -->
         <div class="col-lg-3 col-md-6">
-            <div class="card h-100 border-0 shadow-sm rounded-4 {% if user.subscription_type == 'pro' %}border-danger border-2{% endif %}">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
                         <i class="fas fa-crown fa-3x text-danger"></i>
@@ -204,6 +152,9 @@
                     <div class="my-4">
                         <h2 class="display-5 fw-bold text-danger">25 000 FCFA</h2>
                         <small class="text-muted">/mois</small>
+                    </div>
+                    <div class="bg-light rounded-3 p-2 mb-3">
+                        <span class="badge bg-danger">⭐⭐⭐ Mise en avant maximale</span>
                     </div>
                     <ul class="list-unstyled text-start mt-4">
                         <li class="mb-2">
@@ -216,24 +167,12 @@
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
-                            <strong>Mise en avant illimitée</strong>
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
                             <strong>Support prioritaire 24/7</strong> 💬
                         </li>
                     </ul>
-                    {% if user.subscription_type == 'pro' %}
-                        <button class="btn btn-danger w-100 mt-3" disabled>
-                            <i class="fas fa-check"></i> Actif
-                        </button>
-                    {% else %}
-                        <form action="{{ url_for('subscribe', plan='pro') }}" method="POST">
-                            <button type="submit" class="btn btn-outline-danger w-100 mt-3">
-                                <i class="fas fa-arrow-right"></i> S'abonner
-                            </button>
-                        </form>
-                    {% endif %}
+                    <button class="btn btn-secondary w-100 mt-3" disabled>
+                        <i class="fas fa-clock me-1"></i> Bientôt disponible
+                    </button>
                 </div>
             </div>
         </div>
@@ -246,24 +185,28 @@
                 <div class="card-body p-4 p-md-5">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h3 class="fw-bold mb-2">
-                                <i class="fas fa-calendar-alt me-2"></i>Pack Annuel
-                            </h3>
-                            <p class="mb-0 opacity-75">Économisez 30% avec l'abonnement annuel</p>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fas fa-crown fa-2x text-warning"></i>
+                                <h3 class="fw-bold mb-0">Pack Annuel</h3>
+                                <span class="badge bg-danger ms-2">⭐ RECOMMANDÉ ⭐</span>
+                            </div>
+                            <p class="mb-0 opacity-75">Économisez 30% et bénéficiez d'une mise en avant maximale !</p>
                             <ul class="list-unstyled mt-3">
                                 <li><i class="fas fa-check-circle me-2"></i> 200 annonces incluses</li>
-                                <li><i class="fas fa-check-circle me-2"></i> Annonces supplémentaires à 400 FCFA</li>
-                                <li><i class="fas fa-check-circle me-2"></i> Tous les avantages Premium</li>
+                                <li><i class="fas fa-check-circle me-2"></i> Annonces supplémentaires à <strong>300 FCFA</strong></li>
+                                <li><i class="fas fa-check-circle me-2"></i> <strong>⭐⭐⭐ Mise en avant maximale (comme Pro)</strong> 👑</li>
+                                <li><i class="fas fa-check-circle me-2"></i> Statistiques avancées incluses</li>
                             </ul>
                         </div>
                         <div class="col-md-4 text-center">
                             <div class="display-4 fw-bold">100 000 FCFA</div>
                             <small class="opacity-75">/an</small>
-                            <form action="{{ url_for('subscribe', plan='annual') }}" method="POST">
-                                <button type="submit" class="btn btn-light w-100 mt-3 rounded-pill">
-                                    <i class="fas fa-arrow-right me-2"></i>S'abonner
-                                </button>
-                            </form>
+                            <div class="mt-2">
+                                <span class="badge bg-success">Économie de 30%</span>
+                            </div>
+                            <button class="btn btn-secondary w-100 mt-3 rounded-pill" disabled>
+                                <i class="fas fa-clock me-1"></i> Bientôt disponible
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -289,35 +232,35 @@
                 <tbody>
                     <tr>
                         <td class="text-start fw-bold">Prix</td>
-                        <td>0 FCFA</td>
+                        <td><strong>700 FCFA</strong><br><small class="text-muted">par annonce</small></td>
                         <td>5 000 FCFA/mois</td>
                         <td>10 000 FCFA/mois</td>
                         <td>25 000 FCFA/mois</td>
-                        <td>100 000 FCFA/an</td>
+                        <td class="bg-warning bg-opacity-25">100 000 FCFA/an</td>
                     </tr>
                     <tr>
                         <td class="text-start fw-bold">Annonces gratuites</td>
-                        <td>100 (total)</td>
-                        <td>20/mois</td>
-                        <td>50/mois</td>
+                        <td>0 (paiement à l'unité)</td>
+                        <td>15/mois</td>
+                        <td>40/mois</td>
                         <td>Illimité</td>
-                        <td>200/an</td>
+                        <td class="bg-warning bg-opacity-25">200/an</td>
                     </tr>
                     <tr>
                         <td class="text-start fw-bold">Annonces supplémentaires</td>
-                        <td>1 000 FCFA</td>
-                        <td>500 FCFA</td>
-                        <td>300 FCFA</td>
-                        <td>0 FCFA</td>
+                        <td>700 FCFA</td>
+                        <td>600 FCFA</td>
                         <td>400 FCFA</td>
+                        <td>0 FCFA</td>
+                        <td class="bg-warning bg-opacity-25">300 FCFA</td>
                     </tr>
                     <tr>
                         <td class="text-start fw-bold">Mise en avant</td>
-                        <td><i class="fas fa-times text-danger"></i></td>
-                        <td><i class="fas fa-times text-danger"></i></td>
-                        <td><i class="fas fa-check text-success"></i> Prioritaire</td>
-                        <td><i class="fas fa-check text-success"></i> Illimitée</td>
-                        <td><i class="fas fa-check text-success"></i> Prioritaire</td>
+                        <td><i class="fas fa-times text-danger"></i> Aucune</td>
+                        <td><i class="fas fa-star text-warning"></i> Légère</td>
+                        <td><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i> Forte</td>
+                        <td><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i> Maximale</td>
+                        <td class="bg-warning bg-opacity-25"><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i> Maximale 👑</td>
                     </tr>
                     <tr>
                         <td class="text-start fw-bold">Statistiques avancées</td>
@@ -325,7 +268,7 @@
                         <td><i class="fas fa-times text-danger"></i></td>
                         <td><i class="fas fa-check text-success"></i></td>
                         <td><i class="fas fa-check text-success"></i></td>
-                        <td><i class="fas fa-check text-success"></i></td>
+                        <td class="bg-warning bg-opacity-25"><i class="fas fa-check text-success"></i></td>
                     </tr>
                     <tr>
                         <td class="text-start fw-bold">Support prioritaire</td>
@@ -333,7 +276,7 @@
                         <td><i class="fas fa-times text-danger"></i></td>
                         <td><i class="fas fa-times text-danger"></i></td>
                         <td><i class="fas fa-check text-success"></i> 24/7</td>
-                        <td><i class="fas fa-times text-danger"></i></td>
+                        <td class="bg-warning bg-opacity-25"><i class="fas fa-times text-danger"></i></td>
                     </tr>
                 </tbody>
             </table>
@@ -350,8 +293,8 @@
                 <div class="d-flex">
                     <i class="fas fa-gift fa-2x text-primary me-3"></i>
                     <div>
-                        <h5>Comment fonctionnent les 100 premières annonces gratuites ?</h5>
-                        <p class="text-muted">Chaque nouveau propriétaire ou courtier bénéficie des 100 premières annonces gratuites sur toute la plateforme. Passé ce seuil, vous pouvez soit payer 1 000 FCFA par annonce, soit souscrire à un abonnement.</p>
+                        <h5>Pourquoi les abonnements ne sont pas encore disponibles ?</h5>
+                        <p class="text-muted">Nous sommes actuellement en phase de lancement. Pendant cette période, <strong>toutes les annonces sont gratuites</strong> ! Les abonnements seront disponibles prochainement.</p>
                     </div>
                 </div>
             </div>
@@ -359,8 +302,8 @@
                 <div class="d-flex">
                     <i class="fas fa-credit-card fa-2x text-primary me-3"></i>
                     <div>
-                        <h5>Quels moyens de paiement acceptez-vous ?</h5>
-                        <p class="text-muted">Nous acceptons Wave, Orange Money et Free Money pour les paiements au Sénégal. Les abonnements peuvent être payés mensuellement ou annuellement.</p>
+                        <h5>Quels moyens de paiement seront acceptés ?</h5>
+                        <p class="text-muted">Nous accepterons Wave, Orange Money et Free Money pour les paiements au Sénégal.</p>
                     </div>
                 </div>
             </div>
@@ -368,8 +311,8 @@
                 <div class="d-flex">
                     <i class="fas fa-undo fa-2x text-primary me-3"></i>
                     <div>
-                        <h5>Puis-je changer d'abonnement ?</h5>
-                        <p class="text-muted">Oui, vous pouvez passer à un forfait supérieur à tout moment. La différence sera calculée au prorata.</p>
+                        <h5>Puis-je changer d'abonnement plus tard ?</h5>
+                        <p class="text-muted">Oui, vous pourrez passer à un forfait supérieur à tout moment.</p>
                     </div>
                 </div>
             </div>
@@ -378,7 +321,16 @@
                     <i class="fas fa-chart-line fa-2x text-primary me-3"></i>
                     <div>
                         <h5>Que contiennent les statistiques avancées ?</h5>
-                        <p class="text-muted">Nombre de vues de vos annonces, nombre de contacts, taux de conversion et recommandations personnalisées.</p>
+                        <p class="text-muted">Nombre de vues de vos annonces, nombre de contacts et taux de conversion.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <i class="fas fa-crown fa-2x text-warning me-3"></i>
+                    <div>
+                        <h5>Quand les abonnements seront-ils disponibles ?</h5>
+                        <p class="text-muted">Les abonnements seront disponibles dès la fin de la phase de lancement. Vous serez informé par email.</p>
                     </div>
                 </div>
             </div>
@@ -396,6 +348,9 @@
 <style>
     .bg-gradient-primary {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+    .bg-opacity-25 {
+        --bs-bg-opacity: 0.25;
     }
 </style>
 {% endblock %}

@@ -4,7 +4,16 @@
 
 {% block content %}
 <div class="container py-4">
-    <!-- ========== ALERTE D'EXPIRATION D'ABONNEMENT ========== -->
+    
+    <!-- ========== BANNIÈRE PHASE DE LANCEMENT ========== -->
+    <div class="alert alert-success text-center mb-4 shadow-sm" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); border: none;">
+        <i class="fas fa-gift fa-2x me-2 text-success"></i>
+        <strong>🎉 PHASE DE LANCEMENT - 100% GRATUIT !</strong><br>
+        Toutes vos annonces sont gratuites pendant cette période.<br>
+        <small>Les abonnements seront disponibles prochainement.</small>
+    </div>
+    
+    <!-- ========== ALERTE D'EXPIRATION D'ABONNEMENT (désactivée en phase lancement) ==========
     {% if abonnement_expire %}
     <div class="alert alert-danger mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -21,26 +30,9 @@
         </div>
     </div>
     {% endif %}
+    ========== -->
     
-    <!-- ========== ALERTE PLUS QUE 5 ANNONCES GRATUITES RESTANTES ========== -->
-    {% if user.subscription_type == 'free' and annonces_gratuites_restantes_global <= 5 and annonces_gratuites_restantes_global > 0 %}
-    <div class="alert alert-warning mb-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <i class="fas fa-clock fa-2x float-start me-3"></i>
-                <div>
-                    <strong>⚠️ Plus que {{ annonces_gratuites_restantes_global }} annonces gratuites sur la plateforme !</strong><br>
-                    <small>Pensez à souscrire un abonnement pour continuer à publier.</small>
-                </div>
-            </div>
-            <a href="{{ url_for('subscription') }}" class="btn btn-warning rounded-pill">
-                <i class="fas fa-crown me-1"></i>Voir les abonnements
-            </a>
-        </div>
-    </div>
-    {% endif %}
-    
-    <!-- ========== ALERTE ABONNEMENT QUI EXPIRE BIENTÔT ========== -->
+    <!-- ========== ALERTE ABONNEMENT QUI EXPIRE BIENTÔT (désactivée) ==========
     {% if user.subscription_type != 'free' and user.subscription_end %}
         {% set jours_restants = (user.subscription_end - now).days %}
         {% if jours_restants <= 7 and jours_restants > 0 %}
@@ -60,105 +52,38 @@
         </div>
         {% endif %}
     {% endif %}
+    ========== -->
     
-    <!-- ========== CARTES STATISTIQUES ========== -->
+    <!-- ========== CARTES STATISTIQUES SIMPLIFIÉES ========== -->
     <div class="row g-3 mb-4">
-        <!-- Cartes existantes -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 {% if user.subscription_type != 'free' %}bg-primary bg-opacity-10{% else %}bg-success bg-opacity-10{% endif %}">
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">Annonces gratuites restantes (personnelles)</small>
-                            <h2 class="fw-bold mb-0">
-                                {% if annonces_gratuites_restantes == "Illimité" %}
-                                    <i class="fas fa-infinity"></i>
-                                {% else %}
-                                    {{ annonces_gratuites_restantes }}
-                                {% endif %}
-                            </h2>
-                        </div>
-                        <div class="rounded-circle p-3 {% if user.subscription_type != 'free' %}bg-primary{% else %}bg-success{% endif %} bg-opacity-10">
-                            <i class="fas fa-gift fa-2x {% if user.subscription_type != 'free' %}text-primary{% else %}text-success{% endif %}"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 bg-info bg-opacity-10">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 bg-success bg-opacity-10">
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <small class="text-muted">Total annonces publiées</small>
-                            <h2 class="fw-bold mb-0">{{ total_annonces }}</h2>
+                            <h2 class="fw-bold mb-0">{{ annonces|length }}</h2>
                         </div>
-                        <div class="bg-info rounded-circle p-3 bg-opacity-10">
-                            <i class="fas fa-home fa-2x text-info"></i>
+                        <div class="rounded-circle p-3 bg-success bg-opacity-10">
+                            <i class="fas fa-home fa-2x text-success"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 {% if user.subscription_type != 'free' %}bg-warning bg-opacity-10{% else %}bg-secondary bg-opacity-10{% endif %}">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 bg-info bg-opacity-10">
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="text-muted">Statut</small>
+                            <small class="text-muted">Phase de lancement</small>
                             <h5 class="fw-bold mb-0">
-                                {% if user.subscription_type != 'free' %}
-                                    <span class="badge bg-warning">Abonné {{ user.subscription_type|upper }}</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Mode gratuit</span>
-                                {% endif %}
+                                <span class="badge bg-success">🎁 100% GRATUIT</span>
                             </h5>
                         </div>
-                        <div class="rounded-circle p-3 bg-opacity-10">
-                            <i class="fas fa-user-circle fa-2x text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- ========== NOUVELLE CARTE : ANNONCES GRATUITES GLOBALES ========== -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-12">
-            <div class="card border-0 shadow-sm rounded-4 bg-gradient-gold">
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-warning rounded-circle p-3">
-                                <i class="fas fa-globe fa-2x text-white"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted text-uppercase">Offre de lancement</small>
-                                <h2 class="fw-bold mb-0">
-                                    {% if annonces_gratuites_restantes_global > 0 %}
-                                        {{ annonces_gratuites_restantes_global }}
-                                    {% else %}
-                                        0
-                                    {% endif %}
-                                </h2>
-                                <p class="mb-0 small">
-                                    {% if annonces_gratuites_restantes_global > 0 %}
-                                        annonces gratuites restantes sur la plateforme
-                                    {% else %}
-                                        annonces gratuites épuisées - Abonnement requis
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <div class="progress" style="width: 200px; height: 8px;">
-                                {% set percent = ((100 - annonces_gratuites_restantes_global) * 100 / 100) | round(0) %}
-                                <div class="progress-bar bg-warning" style="width: {{ percent }}%"></div>
-                            </div>
-                            <small class="text-muted">{{ percent }}% utilisé</small>
+                        <div class="rounded-circle p-3 bg-info bg-opacity-10">
+                            <i class="fas fa-gift fa-2x text-info"></i>
                         </div>
                     </div>
                 </div>
@@ -169,8 +94,8 @@
     <!-- ========== BOUTON PUBLIER ========== -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold"><i class="fas fa-list text-primary me-2"></i>Mes annonces</h2>
-        <a href="{{ url_for('publish') }}" class="btn btn-primary rounded-pill">
-            <i class="fas fa-plus-circle me-1"></i>Nouvelle annonce
+        <a href="{{ url_for('publish') }}" class="btn btn-success rounded-pill shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i>Nouvelle annonce gratuite
         </a>
     </div>
     
@@ -179,7 +104,7 @@
         <div class="row g-4">
             {% for annonce in annonces %}
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card h-100 hover-card">
+                <div class="card h-100 hover-card shadow-sm">
                     <div class="position-relative">
                         <img src="{{ annonce.image_url }}" class="card-img-top" alt="{{ annonce.title }}" 
                              style="height: 200px; object-fit: cover;"
@@ -195,13 +120,9 @@
                                 <span class="badge bg-success px-3 py-2 rounded-pill">
                                     <i class="fas fa-check-circle me-1"></i> Active
                                 </span>
-                            {% elif annonce.is_paid %}
+                            {% else %}
                                 <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
                                     <i class="fas fa-clock me-1"></i> En attente
-                                </span>
-                            {% else %}
-                                <span class="badge bg-danger px-3 py-2 rounded-pill">
-                                    <i class="fas fa-times-circle me-1"></i> Non payée
                                 </span>
                             {% endif %}
                         </div>
@@ -219,6 +140,7 @@
                         
                         <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-gradient text-white">
                             <small><i class="fas fa-eye me-1"></i> {{ annonce.views }} vues</small>
+                            <small class="float-end"><i class="fas fa-calendar-alt me-1"></i> {{ annonce.date_posted.strftime('%d/%m/%Y') }}</small>
                         </div>
                     </div>
                     <div class="card-body p-3">
@@ -237,12 +159,6 @@
                             <a href="{{ url_for('listing_detail', listing_id=annonce.id) }}" class="btn btn-outline-primary flex-grow-1 rounded-pill btn-sm">
                                 <i class="fas fa-eye me-1"></i> Détails
                             </a>
-                            
-                            {% if not annonce.is_paid and not annonce.is_taken %}
-                                <a href="{{ url_for('payment_page', listing_id=annonce.id) }}" class="btn btn-warning rounded-pill btn-sm">
-                                    <i class="fas fa-credit-card me-1"></i> Payer
-                                </a>
-                            {% endif %}
                             
                             {% if not annonce.is_taken and annonce.is_active %}
                             <form action="{{ url_for('mark_as_taken', listing_id=annonce.id) }}" method="POST" class="d-inline" onsubmit="return confirm('⚠️ Confirmation\n\nÊtes-vous sûr de vouloir marquer cette annonce comme prise ?\n\n✅ Le bien ne sera plus visible dans les recherches.\n✅ Vous pourrez le réactiver plus tard si nécessaire.')">
@@ -266,11 +182,6 @@
                                 <i class="fas fa-calendar-check me-1"></i> 
                                 Prise le {{ annonce.taken_date.strftime('%d/%m/%Y') }}
                             </small>
-                        {% else %}
-                            <small class="text-muted d-block mt-2">
-                                <i class="fas fa-calendar-alt me-1"></i> 
-                                Publiée le {{ annonce.date_posted.strftime('%d/%m/%Y') }}
-                            </small>
                         {% endif %}
                     </div>
                 </div>
@@ -281,8 +192,10 @@
         <div class="text-center py-5">
             <i class="fas fa-home fa-4x text-muted mb-3"></i>
             <h4>Aucune annonce pour le moment</h4>
-            <p class="text-muted">Votre première annonce est gratuite !</p>
-            <a href="{{ url_for('publish') }}" class="btn btn-primary rounded-pill">Publier ma première annonce</a>
+            <p class="text-muted">Phase de lancement : votre première annonce est <strong>gratuite</strong> !</p>
+            <a href="{{ url_for('publish') }}" class="btn btn-success rounded-pill shadow-sm">
+                <i class="fas fa-plus-circle me-1"></i>Publier ma première annonce gratuite
+            </a>
         </div>
     {% endif %}
 </div>
@@ -290,27 +203,22 @@
 <style>
     .hover-card {
         transition: all 0.3s ease;
+        border-radius: 1rem;
     }
     .hover-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
     }
     .bg-gradient {
         background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        border-radius: 0 0 0.75rem 0.75rem;
     }
     .btn-sm {
         padding: 0.3rem 0.8rem;
         font-size: 0.8rem;
     }
-    .bg-gradient-gold {
-        background: linear-gradient(135deg, #fff8e7 0%, #ffecd2 100%);
-    }
-    .progress {
-        border-radius: 10px;
-        background-color: #e9ecef;
-    }
-    .progress-bar {
-        border-radius: 10px;
+    .card-img-top {
+        border-radius: 0.75rem 0.75rem 0 0;
     }
 </style>
 {% endblock %}

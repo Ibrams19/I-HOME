@@ -14,6 +14,14 @@
                 <p class="text-muted">Remplissez les informations ci-dessous pour mettre votre bien en ligne</p>
             </div>
             
+            <!-- ========== BANNIÈRE PHASE DE LANCEMENT ========== -->
+            <div class="alert alert-success text-center mb-4 shadow-sm" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); border: none;">
+                <i class="fas fa-gift fa-2x me-2 text-success"></i>
+                <strong>🎉 PHASE DE LANCEMENT - 100% GRATUIT !</strong><br>
+                Publiez vos annonces sans aucun frais pendant cette période.<br>
+                <small>Les abonnements seront disponibles prochainement.</small>
+            </div>
+            
             <div class="card border-0 shadow-lg rounded-4">
                 <div class="card-body p-4 p-md-5">
                     <form method="POST" enctype="multipart/form-data" id="publishForm">
@@ -131,16 +139,17 @@
                             <small class="text-muted">Laissez vide pour une localisation par défaut (Dakar)</small>
                         </div>
                         
-                        <div class="alert alert-info mb-4">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Les 100 premières annonces sont gratuites !</strong>
-                            <br>Publiez sans frais jusqu'à 100 annonces. Ensuite, choisissez un abonnement ou payez à l'unité.
-                            <a href="{{ url_for('subscription') }}" class="alert-link ms-2">Découvrez nos abonnements</a>
+                        <!-- ========== ALERTE GRATUITÉ MODIFIÉE ========== -->
+                        <div class="alert alert-success mb-4" style="background: #ecfdf5; border-color: #10b981;">
+                            <i class="fas fa-gift fa-lg text-success me-2"></i>
+                            <strong>🎉 Phase de lancement - Publication gratuite !</strong>
+                            <br>Votre annonce sera publiée immédiatement et gratuitement.
+                            <a href="{{ url_for('subscription') }}" class="alert-link ms-2">En savoir plus</a>
                         </div>
                         
                         <div class="d-flex gap-3">
-                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1 rounded-pill">
-                                <i class="fas fa-check-circle me-1"></i> Publier l'annonce
+                            <button type="submit" class="btn btn-success btn-lg flex-grow-1 rounded-pill shadow-sm">
+                                <i class="fas fa-check-circle me-1"></i> Publier gratuitement
                             </button>
                             <a href="{{ url_for('listings') }}" class="btn btn-outline-secondary btn-lg px-4 rounded-pill">
                                 <i class="fas fa-times me-1"></i> Annuler
@@ -229,7 +238,7 @@
                 div.className = 'position-relative';
                 div.innerHTML = `
                     <img src="${event.target.result}" class="preview-img" alt="Aperçu">
-                    <span class="position-absolute top-0 end-0 badge bg-primary rounded-circle">${i+1}</span>
+                    <span class="position-absolute top-0 end-0 badge bg-success rounded-circle">${i+1}</span>
                 `;
                 previewContainer.appendChild(div);
             }
@@ -249,8 +258,8 @@
         background: #fafbfc;
     }
     .upload-area:hover {
-        border-color: #2563eb;
-        background: rgba(37, 99, 235, 0.02);
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.02);
     }
     .cursor-pointer {
         cursor: pointer;

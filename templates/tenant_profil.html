@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Mon profil - I-HOME{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                            <i class="fas fa-user-circle fa-3x text-info"></i>
+                        </div>
+                        <h2 class="fw-bold">Mon profil</h2>
+                        <p class="text-muted">
+                            <span class="badge bg-secondary">Locataire</span>
+                        </p>
+                    </div>
+                    
+                    <!-- Informations du compte -->
+                    <div class="bg-light rounded-3 p-3 mb-4">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <small class="text-muted">Nom d'utilisateur</small>
+                                <p class="fw-bold mb-0">{{ user.username }}</p>
+                            </div>
+                            <div class="col-12">
+                                <small class="text-muted">Email</small>
+                                <p class="fw-bold mb-0">{{ user.email or "Non renseigné" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-key text-primary me-2"></i>Changer mon mot de passe
+                    </h5>
+                    
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mot de passe actuel</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 rounded-start-3">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input type="password" name="current_password" id="current_password" class="form-control rounded-end-3" 
+                                       placeholder="Entrez votre mot de passe actuel" required>
+                                <button type="button" class="btn btn-outline-secondary rounded-end-3" onclick="togglePassword('current_password', 'currentIcon')">
+                                    <i class="fas fa-eye" id="currentIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nouveau mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 rounded-start-3">
+                                    <i class="fas fa-key text-muted"></i>
+                                </span>
+                                <input type="password" name="new_password" id="new_password" class="form-control rounded-end-3" 
+                                       placeholder="Minimum 6 caractères" required>
+                                <button type="button" class="btn btn-outline-secondary rounded-end-3" onclick="togglePassword('new_password', 'newIcon')">
+                                    <i class="fas fa-eye" id="newIcon"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Au moins 6 caractères (lettres et chiffres recommandés)</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 rounded-start-3">
+                                    <i class="fas fa-check-circle text-muted"></i>
+                                </span>
+                                <input type="password" name="confirm_password" id="confirm_password" class="form-control rounded-end-3" 
+                                       placeholder="Répétez le nouveau mot de passe" required>
+                                <button type="button" class="btn btn-outline-secondary rounded-end-3" onclick="togglePassword('confirm_password', 'confirmIcon')">
+                                    <i class="fas fa-eye" id="confirmIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill">
+                            <i class="fas fa-save me-2"></i>Changer le mot de passe
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('index') }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i> Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldId, iconId) {
+    const password = document.getElementById(fieldId);
+    const icon = document.getElementById(iconId);
+    if (password.type === 'password') {
+        password.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        password.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

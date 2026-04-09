@@ -8,6 +8,14 @@
     <div class="container text-center">
         <h1 class="display-4 fw-bold mb-3 text-white">Trouvez votre prochain chez-vous</h1>
         <p class="lead mb-4 text-white-50">Location, vente - Direct propriétaires et courtiers</p>
+        
+        <!-- ========== BANNIÈRE PHASE DE LANCEMENT ========== -->
+        <div class="alert alert-success d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill mb-4 shadow-sm" style="background: #10b981; border: none;">
+            <i class="fas fa-gift fa-fw"></i>
+            <span class="text-white fw-semibold">🎉 PHASE DE LANCEMENT - 100% GRATUIT</span>
+            <i class="fas fa-gift fa-fw"></i>
+        </div>
+        
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <a href="{{ url_for('listings') }}" class="btn btn-light btn-lg px-5">
                 <i class="fas fa-search me-2"></i>Rechercher un bien
@@ -18,7 +26,7 @@
                 </a>
             {% elif current_user.can_publish %}
                 <a href="{{ url_for('publish') }}" class="btn btn-outline-light btn-lg px-5">
-                    <i class="fas fa-plus-circle me-2"></i>Publier une annonce
+                    <i class="fas fa-plus-circle me-2"></i>Publier gratuitement
                 </a>
             {% endif %}
         </div>
@@ -88,7 +96,7 @@
         <div class="text-center py-5 bg-light rounded-4">
             <i class="fas fa-home fa-4x text-muted mb-3"></i>
             <h4>Aucune annonce pour le moment</h4>
-            <p class="text-muted">Soyez le premier à publier une annonce !</p>
+            <p class="text-muted">Soyez le premier à publier une annonce gratuitement !</p>
             {% if current_user.is_authenticated and current_user.can_publish %}
                 <a href="{{ url_for('publish') }}" class="btn btn-primary rounded-pill">Publier ma première annonce</a>
             {% elif not current_user.is_authenticated %}
@@ -311,7 +319,7 @@
                 <span class="fs-3 fw-bold">2</span>
             </div>
             <h5>Publiez ou cherchez</h5>
-            <p class="text-muted">Propriétaires : publiez votre bien<br>Locataires : filtrez par critères</p>
+            <p class="text-muted">Propriétaires : publiez votre bien gratuitement<br>Locataires : filtrez par critères</p>
         </div>
         <div class="col-md-4 text-center">
             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
