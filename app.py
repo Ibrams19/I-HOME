@@ -791,30 +791,33 @@ def view_logs():
 
 # ====================== MESSAGERIE ======================
 
-@app.route('/admin/delete-all-listings')
+@app.route('/admin/nuke')
 @login_required
-def delete_all_listings():
+def admin_nuke():
     if current_user.username != 'admin':
-        flash("Accès non autorisé.", "danger")
-        return redirect(url_for('index'))
+        return "Non autorisé", 403
     
-    # Compter avant suppression
-    count = Listing.query.count()
-    
-    # Supprimer d'abord les favoris liés
-    Favorite.query.delete()
-    
-    # Supprimer les messages et conversations liés
-    Message.query.delete()
-    Conversation.query.delete()
-    
-    # Supprimer toutes les annonces
-    Listing.query.delete()
-    
-    db.session.commit()
-    
-    flash(f"✅ {count} annonces et toutes les données associées ont été supprimées !", "success")
-    return redirect(url_for('admin_dashboard'))
+    # Supprimer toutes les données
+    try:
+        # Nombre avant suppression
+        listings_count = Listing.query.count()
+        
+        # Supprimer dans l'ordre (à cause des clés étrangères)
+        db.session.execute('DELETE FROM message')
+        db.session.execute('DELETE FROM conversation')
+        db.session.execute('DELETE FROM favorite')
+        db.session.execute('DELETE FROM listing')
+        db.session.commit()
+        
+        return f"""
+        <div style="text-align: center; padding: 50px; font-family: Arial;">
+            <h1 style="color: green;">✅ Nettoyage complet !</h1>
+            <p><strong>{listings_count}</strong> annonces supprimées.</p>
+            <p><a href="/">Retour à l'accueil</a></p>
+        </div>
+        """
+    except Exception as e:
+        return f"<h2>Erreur: {e}</h2>"
 
 @app.route('/start-conversation/<int:listing_id>')
 @login_required
