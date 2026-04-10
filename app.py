@@ -791,35 +791,6 @@ def view_logs():
 
 # ====================== MESSAGERIE ======================
 
-@app.route('/admin/nuke')
-@login_required
-def admin_nuke():
-    if current_user.username != 'admin':
-        return "Non autorisé", 403
-    
-    from sqlalchemy import text
-    
-    try:
-        # Nombre avant suppression
-        listings_count = Listing.query.count()
-        
-        # Supprimer dans l'ordre (à cause des clés étrangères)
-        db.session.execute(text('DELETE FROM message'))
-        db.session.execute(text('DELETE FROM conversation'))
-        db.session.execute(text('DELETE FROM favorite'))
-        db.session.execute(text('DELETE FROM listing'))
-        db.session.commit()
-        
-        return f"""
-        <div style="text-align: center; padding: 50px; font-family: Arial;">
-            <h1 style="color: green;">✅ Nettoyage complet !</h1>
-            <p><strong>{listings_count}</strong> annonces supprimées.</p>
-            <p><a href="/">Retour à l'accueil</a></p>
-        </div>
-        """
-    except Exception as e:
-        return f"<h2>❌ Erreur: {e}</h2>"
-
 @app.route('/start-conversation/<int:listing_id>')
 @login_required
 def start_conversation(listing_id):
