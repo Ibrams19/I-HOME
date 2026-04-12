@@ -52,7 +52,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ==================== BASE DE DONNÉES (CORRIGÉE) ====================
+# ==================== BASE DE DONNÉES ====================
 # Détection de l'environnement Render
 is_render = os.environ.get('RENDER') == 'true' or os.environ.get('DATABASE_URL') is not None
 
@@ -190,16 +190,6 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
     logger.info("✅ Tables de la base de données vérifiées/créées")
-
-class ListingView(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Nullable pour les non connectés
-    ip_address = db.Column(db.String(45), nullable=True)  # Pour les non connectés
-    viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    listing = db.relationship('Listing', backref='views_tracking')
-    user = db.relationship('User', backref='listing_views')
 
 # ====================== FONCTIONS ======================
 
@@ -696,85 +686,10 @@ def listings_by_type(type):
 @login_required
 def listing_detail(listing_id):
     annonce = Listing.query.get_or_404(listing_id)
-    
-    # Vérifier si l'utilisateur a déjà vu cette annonce
-    user_id = current_user.id
-    ip_address = request.remote_addr
-    
-    # Vérifier si une vue existe déjà pour cet utilisateur sur cette annonce
-    existing_view = ListingView.query.filter_by(
-        listing_id=listing_id,
-        user_id=user_id
-    ).first()
-    
-    # Pour les utilisateurs non connectés (au cas où), on utilise l'IP
-    if not existing_view and not current_user.is_authenticated:
-        existing_view = ListingView.query.filter_by(
-            listing_id=listing_id,
-            ip_address=ip_address
-        ).first()
-    
-    # Si pas de vue existante, on ajoute une vue
-    if not existing_view:
-        new_view = ListingView(
-            listing_id=listing_id,
-            user_id=user_id if current_user.is_authenticated else None,
-            ip_address=ip_address if not current_user.is_authenticated else None
-        )
-        db.session.add(new_view)
-        
-        # Incrémenter le compteur de vues
-        annonce.views += 1
-        db.session.commit()
-    
+    # Version simple - incrémente à chaque vue
+    annonce.views += 1
+    db.session.commit()
     return render_template('detail.html', annonce=annonce)
-
-@app.route('/listing/public/<int:listing_id>')
-def listing_detail_public(listing_id):
-    annonce = Listing.query.get_or_404(listing_id)
-    
-    # Vérifier par IP pour les non connectés
-    ip_address = request.remote_addr
-    existing_view = ListingView.query.filter_by(
-        listing_id=listing_id,
-        ip_address=ip_address
-    ).first()
-    
-    if not existing_view:
-        new_view = ListingView(
-            listing_id=listing_id,
-            ip_address=ip_address
-        )
-        db.session.add(new_view)
-        annonce.views += 1
-        db.session.commit()
-    
-    return render_template('detail_public.html', annonce=annonce)
-
-@app.route('/admin/view-stats')
-@login_required
-def view_stats():
-    if current_user.username != 'admin':
-        flash("Accès non autorisé.", "danger")
-        return redirect(url_for('index'))
-    
-    # Top 10 des annonces les plus vues
-    top_listings = Listing.query.order_by(Listing.views.desc()).limit(10).all()
-    
-    # Nombre total de vues uniques
-    total_unique_views = ListingView.query.count()
-    
-    # Vues par jour (30 derniers jours)
-    from sqlalchemy import func
-    views_by_day = db.session.query(
-        func.date(ListingView.viewed_at).label('date'),
-        func.count(ListingView.id).label('count')
-    ).group_by(func.date(ListingView.viewed_at)).order_by(func.date(ListingView.viewed_at).desc()).limit(30).all()
-    
-    return render_template('admin_view_stats.html', 
-                          top_listings=top_listings,
-                          total_unique_views=total_unique_views,
-                          views_by_day=views_by_day)
 
 @app.route('/favorite/<int:listing_id>', methods=['POST'])
 @login_required
