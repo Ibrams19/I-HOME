@@ -182,6 +182,16 @@ class Message(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     sender = db.relationship('User', foreign_keys=[sender_id])
 
+# Table pour le comptage unique des vues
+class ListingView(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    listing = db.relationship('Listing', backref='views_tracking')
+    user = db.relationship('User', backref='listing_views')
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -686,9 +696,23 @@ def listings_by_type(type):
 @login_required
 def listing_detail(listing_id):
     annonce = Listing.query.get_or_404(listing_id)
-    # Version simple - incrémente à chaque vue
-    annonce.views += 1
-    db.session.commit()
+    
+    # Vérifier si l'utilisateur a déjà vu cette annonce
+    existing_view = ListingView.query.filter_by(
+        listing_id=listing_id,
+        user_id=current_user.id
+    ).first()
+    
+    # Si pas de vue existante, on ajoute une vue
+    if not existing_view:
+        new_view = ListingView(
+            listing_id=listing_id,
+            user_id=current_user.id
+        )
+        db.session.add(new_view)
+        annonce.views += 1
+        db.session.commit()
+    
     return render_template('detail.html', annonce=annonce)
 
 @app.route('/favorite/<int:listing_id>', methods=['POST'])
@@ -789,6 +813,16 @@ def view_logs():
         return render_template('logs.html', logs=logs)
     except:
         return render_template('logs.html', logs=["Aucun log disponible"])
+
+# ====================== ROUTES TEMPORAIRES ======================
+
+@app.route('/create-views-table')
+def create_views_table():
+    try:
+        db.create_all()
+        return "✅ Table ListingView créée avec succès ! <a href='/'>Retour à l'accueil</a>"
+    except Exception as e:
+        return f"❌ Erreur: {e}"
 
 # ====================== MESSAGERIE ======================
 
@@ -1072,37 +1106,6 @@ def reactivate_listing(listing_id):
     flash(f"✅ L'annonce '{listing.title}' a été réactivée.", "success")
     return redirect(url_for('my_listings'))
 
-# ====================== GESTION DES ERREURS ======================
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
-@app.errorhandler(403)
-def forbidden(e):
-    flash("Erreur de sécurité. Veuillez réessayer.", "danger")
-    return redirect(url_for('index'))
-
-@app.errorhandler(401)
-def unauthorized(e):
-    flash("Vous devez être connecté pour accéder à cette page.", "warning")
-    return redirect(url_for('login'))
-
-@app.before_request
-def log_request_info():
-    if request.method == 'POST':
-        logger.info(f"Requête POST sur {request.endpoint}")
-
-@app.after_request
-def log_response_info(response):
-    if response.status_code >= 400:
-        logger.warning(f"Réponse {response.status_code} sur {request.endpoint}")
-    return response
-
 # ====================== ROUTES PAIEMENT (SIMPLIFIÉES) ======================
 
 @app.route('/manual-payment/<int:listing_id>')
@@ -1192,6 +1195,37 @@ def simulate_payment(listing_id):
 def payment_check(listing_id):
     annonce = Listing.query.get_or_404(listing_id)
     return jsonify({'status': 'completed' if annonce.is_paid and annonce.is_active else 'pending'})
+
+# ====================== GESTION DES ERREURS ======================
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
+@app.errorhandler(403)
+def forbidden(e):
+    flash("Erreur de sécurité. Veuillez réessayer.", "danger")
+    return redirect(url_for('index'))
+
+@app.errorhandler(401)
+def unauthorized(e):
+    flash("Vous devez être connecté pour accéder à cette page.", "warning")
+    return redirect(url_for('login'))
+
+@app.before_request
+def log_request_info():
+    if request.method == 'POST':
+        logger.info(f"Requête POST sur {request.endpoint}")
+
+@app.after_request
+def log_response_info(response):
+    if response.status_code >= 400:
+        logger.warning(f"Réponse {response.status_code} sur {request.endpoint}")
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
